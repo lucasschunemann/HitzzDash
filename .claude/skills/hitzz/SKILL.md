@@ -33,8 +33,8 @@ Tudo roda na raiz do projeto com `npm run -s cc -- <comando>`. O CLI prepara ins
 
 Quando o pedido for a atualização semanal ("rode a atualização semanal do Hitzz"):
 
-1. `npm ci` se `node_modules` não existir.
-2. Passos 1–4 acima. A coleta só traz posts dos últimos 14 dias (a semana nova + métricas da anterior), e só os publicados nos últimos 7 dias são analisados; os mais antigos ficam só com métricas.
+1. `npm ci` se `node_modules` não existir (se falhar, `npm install`).
+2. Passos 1–4 acima, mas com `npm run -s cc -- work --refresh --minutes 120` no passo 1 (coleta todas as contas agora). Se `ffmpeg` não estiver no PATH, `apt-get install -y ffmpeg` antes. A coleta só traz posts dos últimos 14 dias (a semana nova + métricas da anterior), e só os publicados nos últimos 7 dias são analisados; os mais antigos ficam só com métricas.
 3. `npm run -s cc -- weekly-scripts` cria o lote de 10 roteiros base da semana a partir das tendências e padrões (não duplica se já existir).
 4. Passo 5 para todos os pedidos pendentes. Com mais de 4 pedidos, divida entre até 3 subagentes `general-purpose` (`model: sonnet`), cada um com uma lista de números de pedido e a instrução de ler `ROTEIRO.md`, escrever `{plan, script}` para cada pedido e gravar com `save-script`. Cada roteiro do lote precisa de ângulo, hook e estrutura diferentes.
 5. Resumo final como no passo 6, com a contagem de roteiros do lote.

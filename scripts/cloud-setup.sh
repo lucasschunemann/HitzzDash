@@ -7,7 +7,8 @@ set -u
 mkdir -p /opt/whisper/models
 
 # ffmpeg (áudio e frames-chave)
-(apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq ffmpeg) > /tmp/setup-ffmpeg.log 2>&1 &
+# o update pode falhar em PPAs bloqueados pelo proxy; o repositório principal do Ubuntu basta
+((apt-get update -qq || true) && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq ffmpeg) > /tmp/setup-ffmpeg.log 2>&1 &
 
 # modelos do Whisper (large-v3-turbo quantizado + VAD Silero)
 (

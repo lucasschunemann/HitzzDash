@@ -1,7 +1,7 @@
 /**
  * CLI do modo Claude Code. Usado pela skill .claude/skills/hitzz (não precisa decorar).
  *
- *   npm run cc -- work                       roda a fila no Mac: coletas pedidas/agendadas, download, Whisper, frames
+ *   npm run cc -- work [--refresh]                       roda a fila no Mac: coletas pedidas/agendadas, download, Whisper, frames
  *   npm run cc -- pack [--n 8]               reserva N vídeos e imprime guia + insumos compactos (analista)
  *   npm run cc -- save-batch <arq.jsonl>     valida e grava um lote no formato compacto
  *   npm run cc -- status                     o que está aguardando
@@ -40,7 +40,11 @@ async function main() {
       boot.registerHandlers();
       const outside = await applyAnalysisWindow();
       if (outside) console.log(`${outside} vídeo(s) publicados antes da janela de análise ficaram só com métricas`);
-      await boot.schedulerTick();
+      // --refresh: coleta todas as contas ativas agora (rotina semanal), sem depender do agendamento
+      if (process.argv.includes("--refresh")) {
+        const r = await boot.refreshAll("semanal");
+        console.log(`Coleta enfileirada para ${r.accounts} conta(s)`);
+      } else await boot.schedulerTick();
       const pending = await boot.enqueuePendingProcessing({});
       if (pending) console.log(`${pending} vídeo(s) com etapas pendentes voltaram para a fila`);
       const res = await queue.drainQueue((m) => console.log(`[fila] ${m}`), { maxMinutes: Number(arg("minutes") ?? 60) });

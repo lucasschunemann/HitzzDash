@@ -33,6 +33,7 @@ import {
 } from "./scriptgen";
 import { SCRIPT_CATEGORIES, type ScriptCategory } from "@/lib/taxonomy";
 import { bump } from "./events";
+import { readImage, frameKey } from "./storage";
 import { getSettings, setSettings } from "./settings";
 
 export const CC_DIR = path.join(DATA_DIR, "claude-code");
@@ -58,6 +59,18 @@ export async function awaitingAnalysis() {
     .sort((a, b) => b.publishedAt - a.publishedAt);
 }
 
+/**
+ * Arquivo do frame: o original no disco do worker ou, se ele não existir (ex.: rotina na nuvem
+ * analisando vídeos processados no Mac), a cópia WebP guardada no banco.
+ */
+async function frameSource(rel: string): Promise<string | Buffer> {
+  const abs = mediaAbs(rel);
+  if (fs.existsSync(abs)) return abs;
+  const img = await readImage(frameKey(rel));
+  if (!img) throw new Error(`Frame indisponível no disco e no banco: ${rel}`);
+  return Buffer.from(img.data);
+}
+
 /** Folha de contato: os frames-chave numa grade única, numerados com o tempo (1 imagem por vídeo). */
 async function contactSheet(frames: { path: string; t: number }[], out: string) {
   const sharp = (await import("sharp")).default;
@@ -67,7 +80,7 @@ async function contactSheet(frames: { path: string; t: number }[], out: string) 
   const rows = Math.ceil(frames.length / cols);
   const tiles = await Promise.all(
     frames.map(async (f, i) => {
-      const img = await sharp(mediaAbs(f.path)).resize(W, H, { fit: "cover" }).jpeg().toBuffer();
+      const img = await sharp(await frameSource(f.path)).resize(W, H, { fit: "cover" }).jpeg().toBuffer();
       const label = Buffer.from(
         `<svg width="${W}" height="30"><rect width="${W}" height="30" fill="rgba(0,0,0,0.72)"/><text x="8" y="21" font-family="Helvetica, Arial" font-size="17" font-weight="700" fill="#fff">${i + 1} · ${f.t.toFixed(1)}s</text></svg>`,
       );
@@ -476,7 +489,7 @@ async function compactSheet(frames: { path: string; t: number }[], out: string) 
   const rows = Math.ceil(chosen.length / cols);
   const tiles = await Promise.all(
     chosen.map(async (f, i) => {
-      const img = await sharp(mediaAbs(f.path)).resize(W, H, { fit: "cover" }).jpeg().toBuffer();
+      const img = await sharp(await frameSource(f.path)).resize(W, H, { fit: "cover" }).jpeg().toBuffer();
       const label = Buffer.from(`<svg width="${W}" height="24"><rect width="${W}" height="24" fill="rgba(0,0,0,0.72)"/><text x="6" y="17" font-family="Helvetica, Arial" font-size="15" font-weight="700" fill="#fff">${i + 1} · ${f.t.toFixed(1)}s</text></svg>`);
       const left = (i % cols) * (W + 3);
       const top = Math.floor(i / cols) * (H + 3);
