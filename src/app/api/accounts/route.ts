@@ -1,5 +1,6 @@
 import { addAccount, accountStats } from "@/server/accounts";
 import type { AccountGroup } from "@/db/schema";
+import { ownerOnly } from "@/server/role";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +9,8 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const denied = await ownerOnly();
+  if (denied) return denied;
   const body = (await req.json().catch(() => ({}))) as { handle?: string; group?: AccountGroup };
   const group: AccountGroup = body.group === "own" || body.group === "reference" ? body.group : "competitor";
   try {

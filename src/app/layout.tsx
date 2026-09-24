@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import "./globals.css";
 import { Shell } from "@/components/shell";
 import { THEME_SCRIPT } from "@/lib/theme-script";
+import { isOwner } from "@/server/role";
 import { ENV_VARS, hasKey, transcriberMode } from "@/server/env";
 import { hasWhisper } from "@/server/whisper";
 import { isVercel } from "@/server/host";
@@ -44,7 +45,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body className="min-h-full">
-        <Shell status={{ missing, ffmpeg, live: vercel ? "poll" : "sse", auth: Boolean(process.env.DASHBOARD_PASSWORD) }}>{children}</Shell>
+        <Shell status={{ missing, ffmpeg, live: vercel ? "poll" : "sse", auth: Boolean(process.env.DASHBOARD_PASSWORD), owner: await isOwner() }}>{children}</Shell>
       </body>
     </html>
   );

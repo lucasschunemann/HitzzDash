@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { AUTH_COOKIE, authToken, safeEqual } from "@/lib/auth";
+import { AUTH_COOKIE, roleOf } from "@/lib/auth";
 
 /**
  * Protege o dashboard com a senha da equipe. Sem DASHBOARD_PASSWORD o acesso é livre (uso local);
@@ -11,8 +11,7 @@ export async function proxy(req: NextRequest) {
     if (process.env.VERCEL) return new NextResponse("Defina DASHBOARD_PASSWORD nas variáveis de ambiente do projeto na Vercel.", { status: 503 });
     return NextResponse.next();
   }
-  const cookie = req.cookies.get(AUTH_COOKIE)?.value ?? "";
-  if (cookie && safeEqual(cookie, await authToken(password))) return NextResponse.next();
+  if (await roleOf(req.cookies.get(AUTH_COOKIE)?.value)) return NextResponse.next();
 
   if (req.nextUrl.pathname.startsWith("/api/")) return NextResponse.json({ error: "Faça login para continuar." }, { status: 401 });
   const url = req.nextUrl.clone();

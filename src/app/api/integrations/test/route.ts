@@ -6,9 +6,12 @@ import { db, isRemoteDb } from "@/db";
 import { getSettings } from "@/server/settings";
 import { sql } from "drizzle-orm";
 import { hasFfmpeg, run } from "@/server/media";
+import { ownerOnly } from "@/server/role";
 
 /** Testa cada integração com uma chamada barata. Nunca devolve o valor da chave. */
 export async function POST(req: Request) {
+  const denied = await ownerOnly();
+  if (denied) return denied;
   let { key } = (await req.json().catch(() => ({}))) as { key?: string };
   try {
     if (key === "ffmpeg") {

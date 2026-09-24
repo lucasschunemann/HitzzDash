@@ -3,6 +3,7 @@ import { db, schema } from "@/db";
 import { getSettings, setSettings, SETTING_DEFAULTS, type Settings } from "@/server/settings";
 import { normalizeHandle } from "@/server/collect";
 import { bump } from "@/server/events";
+import { ownerOnly } from "@/server/role";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,8 @@ export async function GET() {
 const clampInt = (v: unknown, min: number, max: number) => (typeof v === "number" && Number.isFinite(v) ? Math.min(max, Math.max(min, Math.round(v))) : undefined);
 
 export async function PATCH(req: Request) {
+  const denied = await ownerOnly();
+  if (denied) return denied;
   const b = (await req.json().catch(() => ({}))) as Partial<Settings>;
   const patch: Partial<Settings> = {
     reelsPerAccount: clampInt(b.reelsPerAccount, 5, 200),

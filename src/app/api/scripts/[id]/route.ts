@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { bump } from "@/server/events";
+import { ownerOnly } from "@/server/role";
 
 export async function PATCH(req: Request, ctx: RouteContext<"/api/scripts/[id]">) {
   const id = Number((await ctx.params).id);
@@ -15,6 +16,8 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/scripts/[id]">
 }
 
 export async function DELETE(_req: Request, ctx: RouteContext<"/api/scripts/[id]">) {
+  const denied = await ownerOnly();
+  if (denied) return denied;
   const id = Number((await ctx.params).id);
   await db.delete(schema.scripts).where(eq(schema.scripts.id, id)).run();
   await bump("scripts");

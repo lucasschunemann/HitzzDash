@@ -4,8 +4,11 @@ import { deleteAccount } from "@/server/collect";
 import { bump } from "@/server/events";
 import { setSettings } from "@/server/settings";
 import type { AccountGroup } from "@/db/schema";
+import { ownerOnly } from "@/server/role";
 
 export async function PATCH(req: Request, ctx: RouteContext<"/api/accounts/[id]">) {
+  const denied = await ownerOnly();
+  if (denied) return denied;
   const id = Number((await ctx.params).id);
   const body = (await req.json().catch(() => ({}))) as { group?: AccountGroup; active?: boolean };
   const acc = await db.select().from(schema.accounts).where(eq(schema.accounts.id, id)).get();
@@ -21,6 +24,8 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/accounts/[id]"
 }
 
 export async function DELETE(_req: Request, ctx: RouteContext<"/api/accounts/[id]">) {
+  const denied = await ownerOnly();
+  if (denied) return denied;
   const id = Number((await ctx.params).id);
   await deleteAccount(id);
   return Response.json({ ok: true });

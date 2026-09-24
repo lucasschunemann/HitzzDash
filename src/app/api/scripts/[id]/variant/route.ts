@@ -5,6 +5,7 @@ import { getScript, generateScript, type Plan, type ScriptInput } from "@/server
 import { TONES } from "@/lib/taxonomy";
 import { analyzerMode } from "@/server/env";
 import { createScriptRequest } from "@/server/claude-code";
+import { ownerOnly } from "@/server/role";
 
 /**
  * Variações de um roteiro:
@@ -13,6 +14,8 @@ import { createScriptRequest } from "@/server/claude-code";
  *  - tone: mantém a estratégia e reescreve só o texto com outro tom
  */
 export async function POST(req: Request, ctx: RouteContext<"/api/scripts/[id]/variant">) {
+  const denied = await ownerOnly();
+  if (denied) return denied;
   const id = Number((await ctx.params).id);
   const b = (await req.json().catch(() => ({}))) as { kind?: "regenerate" | "alternative" | "tone"; tone?: string };
   const base = await getScript(id);

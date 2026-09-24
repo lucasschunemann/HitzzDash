@@ -3,9 +3,12 @@ import { eq } from "drizzle-orm";
 import { removeDemoVideos } from "@/server/boot";
 import { seedDemo } from "@/server/seed";
 import { bump } from "@/server/events";
+import { ownerOnly } from "@/server/role";
 
 /** Remove ou restaura os dados de demonstração. Nunca mexe em vídeos reais. */
 export async function POST(req: Request) {
+  const denied = await ownerOnly();
+  if (denied) return denied;
   const b = (await req.json().catch(() => ({}))) as { action?: "remove" | "restore" };
   if (b.action === "remove") {
     const n = await removeDemoVideos();

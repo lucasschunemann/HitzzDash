@@ -12,7 +12,7 @@ import { useTheme } from "./theme";
 
 type SearchResult = { videos: { id: string; handle: string; title: string; hookType: string | null }[]; accounts: { id: number; handle: string }[] };
 
-export function CommandMenu({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
+export function CommandMenu({ open, onOpenChange, owner }: { open: boolean; onOpenChange: (o: boolean) => void; owner: boolean }) {
   const router = useRouter();
   const { setPref } = useTheme();
   const [q, setQ] = useState("");
@@ -67,15 +67,19 @@ export function CommandMenu({ open, onOpenChange }: { open: boolean; onOpenChang
               <Command.Empty className="py-10 text-center text-[13.5px] text-ink-3">Nada encontrado.</Command.Empty>
               {!q && (
                 <Command.Group heading="Ações" className={group}>
-                  <Command.Item className={item} onSelect={refreshAll}>
-                    <RefreshCw className="size-4 text-ink-3" /> Atualizar todas as contas agora
-                  </Command.Item>
+                  {owner && (
+                    <Command.Item className={item} onSelect={refreshAll}>
+                      <RefreshCw className="size-4 text-ink-3" /> Atualizar todas as contas agora
+                    </Command.Item>
+                  )}
                   <Command.Item className={item} onSelect={() => go("/scripts?new=1")}>
                     <PenLine className="size-4 text-ink-3" /> Gerar roteiro
                   </Command.Item>
-                  <Command.Item className={item} onSelect={() => go("/accounts?add=1")}>
-                    <UserPlus className="size-4 text-ink-3" /> Adicionar conta
-                  </Command.Item>
+                  {owner && (
+                    <Command.Item className={item} onSelect={() => go("/accounts?add=1")}>
+                      <UserPlus className="size-4 text-ink-3" /> Adicionar conta
+                    </Command.Item>
+                  )}
                   <Command.Item className={item} onSelect={() => go("/videos?band=breakout")}>
                     <Sparkles className="size-4 text-ink-3" /> Ver só breakouts
                   </Command.Item>

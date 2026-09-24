@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
-import { AUTH_COOKIE, authToken, safeEqual } from "@/lib/auth";
+import { AUTH_COOKIE, authToken, passwords, safeEqual } from "@/lib/auth";
 
 export async function POST(req: Request) {
   const form = await req.formData();
   const password = String(form.get("password") ?? "");
   const next = String(form.get("next") ?? "/");
-  const expected = process.env.DASHBOARD_PASSWORD?.trim();
+  const { team, owner } = passwords();
   const target = new URL(next.startsWith("/") && !next.startsWith("//") ? next : "/", req.url);
-  if (!expected || !safeEqual(await authToken(password), await authToken(expected))) {
+  const given = await authToken(password);
+  // a senha do dono também entra; o cookie guarda o hash de quem entrou (define o papel)
+  const expected = owner && safeEqual(given, await authToken(owner)) ? owner : team && safeEqual(given, await authToken(team)) ? team : null;
+  if (!expected) {
     // pequena espera para desestimular tentativa e erro
     await new Promise((r) => setTimeout(r, 600));
     const back = new URL("/login", req.url);

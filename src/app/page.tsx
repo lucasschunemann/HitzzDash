@@ -17,6 +17,7 @@ import { fmtAgo } from "@/lib/format";
 import { hasKey, analyzerMode } from "@/server/env";
 import { ccSummary } from "@/server/claude-code";
 import { ClaudeCodeCard } from "@/components/claude-code-card";
+import { isOwner } from "@/server/role";
 
 export default async function TodayPage() {
   await connection();
@@ -32,6 +33,7 @@ export default async function TodayPage() {
   const outliers = (ins.outliersWeek.length >= 3 ? ins.outliersWeek : ins.outliersRecent).map(toClientRow);
   const outlierIds = outliers.map((o) => o.id);
   const recent = rows.filter((r) => r.publishedAt > requestNow() - 60 * 86_400_000).map(toClientRow);
+  const owner = await isOwner();
   const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
 
   return (
@@ -50,9 +52,11 @@ export default async function TodayPage() {
         }
         actions={
           <>
-            <ApiButton url="/api/refresh" icon={<RefreshCw className="size-3.5" />} success="Coleta iniciada para {accounts} contas">
-              Atualizar agora
-            </ApiButton>
+            {owner && (
+              <ApiButton url="/api/refresh" icon={<RefreshCw className="size-3.5" />} success="Coleta iniciada para {accounts} contas">
+                Atualizar agora
+              </ApiButton>
+            )}
             <Link href="/scripts?new=1" className="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-accent px-3 text-[13.5px] font-medium text-on-accent shadow-sm transition-[background-color,transform] duration-150 hover:bg-accent-hover active:scale-[0.97]">
               <PenLine className="size-3.5" /> Gerar roteiro
             </Link>
@@ -60,7 +64,7 @@ export default async function TodayPage() {
         }
       />
 
-      {analyzerMode() === "claude_code" && (
+      {owner && analyzerMode() === "claude_code" && (
         <div className="mb-10 px-page">
           <ClaudeCodeCard {...(await ccSummary())} />
         </div>
@@ -98,9 +102,11 @@ export default async function TodayPage() {
             </span>
             <div className="flex items-center gap-2">
               <span className="text-[12px] text-ink-3">{digest.saved ? `gerado ${fmtAgo(digest.createdAt)}${digest.generator === "heuristic" ? " (sem IA)" : digest.generator === "claude-code" ? " pelo Claude Code" : ""}` : "calculado agora (sem IA)"}</span>
-              <ApiButton url="/api/digest" size="sm" variant="ghost" success="Resumo na fila; aparece aqui quando ficar pronto">
-                Regenerar
-              </ApiButton>
+              {owner && (
+                <ApiButton url="/api/digest" size="sm" variant="ghost" success="Resumo na fila; aparece aqui quando ficar pronto">
+                  Regenerar
+                </ApiButton>
+              )}
             </div>
           </div>
           <h2 className="text-[24px] font-bold leading-[1.25] tracking-[-0.02em] text-ink md:text-[26px]">{digest.data.headline}</h2>
@@ -222,7 +228,7 @@ export default async function TodayPage() {
         <SectionTitle
           id="status"
           hint={hasKey("apify") ? "Coleta automática configurada em Configurações" : "Configure APIFY_TOKEN para coletar dados reais"}
-          action={<SeeAll href="/accounts#gerenciar">Gerenciar contas</SeeAll>}
+          action={owner ? <SeeAll href="/accounts#gerenciar">Gerenciar contas</SeeAll> : undefined}
         >
           Status da última atualização
         </SectionTitle>

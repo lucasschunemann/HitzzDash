@@ -24,7 +24,13 @@ export type ShellStatus = {
   /** sse = servidor local com processo contínuo; poll = Vercel (consulta periódica). */
   live: "sse" | "poll";
   auth: boolean;
+  /** Dono (Lucas): coleta, pede IA e configura. A equipe só consulta. */
+  owner: boolean;
 };
+
+const OwnerCtx = createContext(true);
+/** true para o dono do dashboard; a equipe vê tudo, mas sem ações que gastam tokens ou créditos. */
+export const useOwner = () => useContext(OwnerCtx);
 
 type Live = { version: number; status: QueueStatus | null; refreshStatus: () => void };
 const LiveCtx = createContext<Live>({ version: 0, status: null, refreshStatus: () => {} });
@@ -168,6 +174,7 @@ export function Shell({ children, status }: { children: ReactNode; status: Shell
     <ThemeProvider>
       <TooltipPrimitive.Provider delayDuration={300}>
         <LiveCtx.Provider value={{ version, status: queue, refreshStatus }}>
+          <OwnerCtx.Provider value={status.owner}>
           <PeekProvider>
             <div className="flex min-h-dvh">
               {/* Barra lateral (tablet: trilho de ícones; desktop: completa) */}
@@ -280,7 +287,7 @@ export function Shell({ children, status }: { children: ReactNode; status: Shell
                     <ThemeToggle className={cn(collapsed && "md:hidden")} />
                   </div>
                 </header>
-                {status.missing.length > 0 && <EnvBanner status={status} />}
+                {status.owner && status.missing.length > 0 && <EnvBanner status={status} />}
                 <main key={pathname} className="page-in min-w-0 flex-1">
                   {children}
                 </main>
@@ -304,13 +311,14 @@ export function Shell({ children, status }: { children: ReactNode; status: Shell
               </nav>
             </div>
           </PeekProvider>
-          <CommandMenu open={cmdOpen} onOpenChange={setCmdOpen} />
+          <CommandMenu open={cmdOpen} onOpenChange={setCmdOpen} owner={status.owner} />
           <Toaster
             position="bottom-right"
             offset={16}
             mobileOffset={{ bottom: 84 }}
             toastOptions={{ className: "!rounded-[10px] !bg-[var(--menu)] !text-ink !border-0 !shadow-[var(--shadow-lg)] !font-sans !text-[13.5px]" }}
           />
+          </OwnerCtx.Provider>
         </LiveCtx.Provider>
       </TooltipPrimitive.Provider>
     </ThemeProvider>

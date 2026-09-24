@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { RotateCw, Trash2, Database } from "lucide-react";
+import { RotateCw, Trash2, Database, Lock } from "lucide-react";
 import { PageHeader } from "@/components/shell";
 import { SectionTitle, Card } from "@/components/ui";
 import { ApiButton } from "@/components/actions";
 import { ThemePicker } from "@/components/theme";
+import { isOwner } from "@/server/role";
 import { IntegrationList, SettingsForm, QueuePanel, type Integration } from "@/components/settings-panels";
 import { AddAccountForm, AccountTable } from "@/components/account-manager";
 import { ENV_VARS, hasKey, anthropicModel, transcriberMode, analyzerMode } from "@/server/env";
@@ -23,6 +24,25 @@ export const metadata: Metadata = { title: "Configurações" };
 
 export default async function SettingsPage() {
   await connection();
+  if (!(await isOwner())) {
+    return (
+      <div className="mx-auto max-w-[1040px] pb-24">
+        <PageHeader title="Configurações" subtitle="Preferências deste navegador." />
+        <div className="space-y-16 px-page">
+          <section>
+            <SectionTitle hint="Claro, escuro ou seguindo o sistema. A escolha fica salva neste navegador.">Aparência</SectionTitle>
+            <ThemePicker />
+          </section>
+          <section className="flex max-w-[640px] gap-3 rounded-[10px] bg-surface-2 p-5 text-[14px] leading-relaxed text-ink-2">
+            <Lock className="mt-0.5 size-4 shrink-0 text-ink-3" />
+            <p>
+              Contas monitoradas, coleta e processamento são gerenciados pelo responsável pelo dashboard. Os dados, padrões e o resumo são atualizados <b className="font-medium text-ink">toda segunda-feira de madrugada</b>.
+            </p>
+          </section>
+        </div>
+      </div>
+    );
+  }
   const ff = await hasFfmpeg();
   const settings = await getSettings();
   const cloud: Integration[] = [

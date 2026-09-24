@@ -4,8 +4,11 @@ import { enqueue } from "@/server/queue";
 import { getInsights } from "@/server/insights";
 import { generateDigest } from "@/server/digest";
 import { analyzerMode } from "@/server/env";
+import { ownerOnly } from "@/server/role";
 
 export async function POST() {
+  const denied = await ownerOnly();
+  if (denied) return denied;
   if ((await getInsights()).totals.analyzed < 3) return Response.json({ error: "Poucos vídeos analisados para um resumo." }, { status: 400 });
   if (analyzerMode() === "claude_code") {
     // não troca um resumo escrito pelo Claude Code (desta semana) por um calculado sem IA

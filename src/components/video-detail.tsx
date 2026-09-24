@@ -15,6 +15,7 @@ import { fmtInt, fmtCompact, fmtRatio, fmtScore, fmtPct, fmtDateTime, fmtDuratio
 import { cn } from "@/lib/cn";
 import { BandBadge, BAND_VAR, DemoBadge } from "./badges";
 import { Button, Pill, Skeleton, Tip } from "./ui";
+import { useOwner } from "./shell";
 import { FlyingThumb } from "./peek";
 
 type Origin = { rect: DOMRect; thumb: string | null } | null;
@@ -564,6 +565,7 @@ function TranscriptBlock({ data }: { data: VideoDetailData }) {
 }
 
 function PipelineStatus({ data }: { data: VideoDetailData }) {
+  const owner = useOwner();
   const { row } = data;
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
@@ -598,7 +600,7 @@ function PipelineStatus({ data }: { data: VideoDetailData }) {
         </p>
       )}
       {row.status.lastError && <p className="mt-2 text-[12.5px] text-bad">Último erro ({row.status.errorStage}): {row.status.lastError}</p>}
-      {!row.isDemo && (
+      {owner && !row.isDemo && (
         <div className="mt-3 flex flex-wrap gap-2">
           <Button size="sm" icon={<RotateCw className="size-3.5" />} loading={busy === "retry"} onClick={() => run(false)}>
             Retomar etapas pendentes

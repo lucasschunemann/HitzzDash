@@ -16,6 +16,7 @@ import { fmtAgo, fmtRatio, fmtScore, fmtCompact } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import { Button, Card, Pill, Segmented, Skeleton, SectionTitle, EmptyState, Tip, spring } from "./ui";
 import { VideoChip } from "./video-card";
+import { useOwner } from "./shell";
 
 export type ScriptRow = {
   id: number;
@@ -79,6 +80,7 @@ export function ScriptStudio({
   requests: ScriptRequestRow[];
 }) {
   const router = useRouter();
+  const owner = useOwner();
   const [showForm, setShowForm] = useState(initial.open || !selected);
   const [filter, setFilter] = useState<"all" | "fav">("all");
   const onDone = useMemo(
@@ -158,13 +160,13 @@ export function ScriptStudio({
               {busy ? (
                 <Progress job={job!} aiEnabled={aiEnabled} />
               ) : (
-                <GeneratorForm initial={initial} aiEnabled={aiEnabled} ccMode={mode === "claude_code"} canGenerate={canGenerate} onSubmit={(b) => start("/api/scripts", b)} onCancel={selected ? () => setShowForm(false) : undefined} />
+                <GeneratorForm owner={owner} initial={initial} aiEnabled={aiEnabled} ccMode={mode === "claude_code"} canGenerate={canGenerate} onSubmit={(b) => start("/api/scripts", b)} onCancel={selected ? () => setShowForm(false) : undefined} />
               )}
             </motion.div>
           )}
         </AnimatePresence>
-        {requests.length > 0 && <PendingRequests requests={requests} />}
-        {!busy && selected && <ScriptView s={selected} rows={rows} family={scripts.filter((x) => x.id !== selected.id && (x.parentId === (selected.parentId ?? selected.id) || x.id === selected.parentId))} onVariant={(body) => start(`/api/scripts/${selected.id}/variant`, body)} aiEnabled={aiEnabled || mode === "claude_code"} />}
+        {requests.length > 0 && <PendingRequests requests={requests} owner={owner} />}
+        {!busy && selected && <ScriptView s={selected} rows={rows} family={scripts.filter((x) => x.id !== selected.id && (x.parentId === (selected.parentId ?? selected.id) || x.id === selected.parentId))} onVariant={(body) => start(`/api/scripts/${selected.id}/variant`, body)} aiEnabled={aiEnabled || mode === "claude_code"} owner={owner} />}
         {!busy && !selected && !showForm && (
           <Card>
             <EmptyState icon={<Sparkles className="size-5" />} title="Nenhum roteiro selecionado" action={<Button variant="primary" onClick={() => setShowForm(true)}>Gerar roteiro</Button>} />
@@ -190,7 +192,7 @@ function HistoryItem({ s, active, child }: { s: ScriptRow; active: boolean; chil
   );
 }
 
-function GeneratorForm({ initial, onSubmit, onCancel, aiEnabled, ccMode, canGenerate }: { initial: { seedTheme?: string; seedHook?: string }; onSubmit: (b: Partial<ScriptInput> & { via?: "heuristic" }) => void; onCancel?: () => void; aiEnabled: boolean; ccMode: boolean; canGenerate: boolean }) {
+function GeneratorForm({ owner, initial, onSubmit, onCancel, aiEnabled, ccMode, canGenerate }: { owner: boolean; initial: { seedTheme?: string; seedHook?: string }; onSubmit: (b: Partial<ScriptInput> & { via?: "heuristic" }) => void; onCancel?: () => void; aiEnabled: boolean; ccMode: boolean; canGenerate: boolean }) {
   const [mode, setMode] = useState<ScriptInput["mode"]>("auto");
   const [category, setCategory] = useState<ScriptCategory>("launch");
   const [theme, setTheme] = useState("");
@@ -214,7 +216,14 @@ function GeneratorForm({ initial, onSubmit, onCancel, aiEnabled, ccMode, canGene
           </button>
         )}
       </div>
-      {ccMode ? (
+      {!owner ? (
+        <div className="mb-6 flex gap-3 rounded-[8px] bg-surface-2 p-4 text-[13.5px] leading-relaxed text-ink-2">
+          <Wand2 className="mt-0.5 size-4 shrink-0 text-ink" />
+          <span>
+            Gere na hora um <b className="font-medium text-ink">esqueleto a partir dos dados</b>: tema, hook, estrutura e cenas escolhidos pelos números, sem IA. Roteiros escritos pelo Claude são preparados pelo responsável na atualização de segunda-feira.
+          </span>
+        </div>
+      ) : ccMode ? (
         <div className="mb-6 flex gap-3 rounded-[8px] bg-surface-2 p-4 text-[13.5px] leading-relaxed text-ink-2">
           <Terminal className="mt-0.5 size-4 shrink-0 text-ink" />
           <span>
@@ -312,15 +321,21 @@ function GeneratorForm({ initial, onSubmit, onCancel, aiEnabled, ccMode, canGene
           />
         </label>
         <div className="flex items-center gap-3">
-          <Button
-            variant="primary"
-            disabled={!canGenerate || (mode === "theme" && !theme.trim())}
-            icon={<Wand2 className="size-3.5" />}
-            onClick={() => onSubmit(payload())}
-          >
-            {ccMode ? "Pedir ao Claude Code" : "Gerar roteiro"}
-          </Button>
-          {ccMode && (
+          {owner ? (
+            <Button
+              variant="primary"
+              disabled={!canGenerate || (mode === "theme" && !theme.trim())}
+              icon={<Wand2 className="size-3.5" />}
+              onClick={() => onSubmit(payload())}
+            >
+              {ccMode ? "Pedir ao Claude Code" : "Gerar roteiro"}
+            </Button>
+          ) : (
+            <Button variant="primary" disabled={!canGenerate || (mode === "theme" && !theme.trim())} icon={<Wand2 className="size-3.5" />} onClick={() => onSubmit({ ...payload(), via: "heuristic" })}>
+              Gerar esqueleto
+            </Button>
+          )}
+          {owner && ccMode && (
             <Button disabled={!canGenerate || (mode === "theme" && !theme.trim())} onClick={() => onSubmit({ ...payload(), via: "heuristic" })}>
               Esqueleto rápido (sem IA)
             </Button>
@@ -402,7 +417,7 @@ function CopyButton({ text, label = "Copiar" }: { text: string; label?: string }
   );
 }
 
-function ScriptView({ s, rows, family, onVariant, aiEnabled }: { s: ScriptRow; rows: Record<string, ClientVideoRow>; family: ScriptRow[]; onVariant: (b: { kind: string; tone?: string }) => void; aiEnabled: boolean }) {
+function ScriptView({ s, rows, family, onVariant, aiEnabled, owner }: { s: ScriptRow; rows: Record<string, ClientVideoRow>; family: ScriptRow[]; onVariant: (b: { kind: string; tone?: string }) => void; aiEnabled: boolean; owner: boolean }) {
   const router = useRouter();
   const o = s.output;
   const p = s.plan;
@@ -455,44 +470,50 @@ function ScriptView({ s, rows, family, onVariant, aiEnabled }: { s: ScriptRow; r
           </Tip>
         </div>
         <div className="mt-5 flex flex-wrap gap-1.5">
-          <Button size="sm" icon={<RotateCw className="size-3.5" />} onClick={() => onVariant({ kind: "regenerate" })}>
-            Regenerar
-          </Button>
-          <Button size="sm" icon={<Shuffle className="size-3.5" />} onClick={() => onVariant({ kind: "alternative" })}>
-            Gerar alternativa
-          </Button>
-          <Popover.Root>
-            <Popover.Trigger asChild>
-              <Button size="sm" icon={<Mic className="size-3.5" />} disabled={!aiEnabled || s.generator === "heuristic"} title={s.generator === "heuristic" ? "Esqueletos heurísticos não têm fala para reescrever" : undefined}>
-                Ajustar tom
+          {owner && (
+            <>
+              <Button size="sm" icon={<RotateCw className="size-3.5" />} onClick={() => onVariant({ kind: "regenerate" })}>
+                Regenerar
               </Button>
-            </Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Content sideOffset={6} align="start" className="menu-surface z-50 w-56 rounded-[8px] p-1">
-                {Object.entries(TONES).map(([k, v]) => (
-                  <Popover.Close key={k} asChild>
-                    <button disabled={k === s.input.tone} onClick={() => onVariant({ kind: "tone", tone: k })} className="flex h-8 w-full items-center rounded-[6px] px-2.5 text-left text-[13px] hover:bg-hover disabled:text-ink-3">
-                      {v} {k === s.input.tone && <span className="ml-auto text-[11px]">atual</span>}
-                    </button>
-                  </Popover.Close>
-                ))}
-              </Popover.Content>
-            </Popover.Portal>
-          </Popover.Root>
+              <Button size="sm" icon={<Shuffle className="size-3.5" />} onClick={() => onVariant({ kind: "alternative" })}>
+                Gerar alternativa
+              </Button>
+              <Popover.Root>
+                <Popover.Trigger asChild>
+                  <Button size="sm" icon={<Mic className="size-3.5" />} disabled={!aiEnabled || s.generator === "heuristic"} title={s.generator === "heuristic" ? "Esqueletos heurísticos não têm fala para reescrever" : undefined}>
+                    Ajustar tom
+                  </Button>
+                </Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Content sideOffset={6} align="start" className="menu-surface z-50 w-56 rounded-[8px] p-1">
+                    {Object.entries(TONES).map(([k, v]) => (
+                      <Popover.Close key={k} asChild>
+                        <button disabled={k === s.input.tone} onClick={() => onVariant({ kind: "tone", tone: k })} className="flex h-8 w-full items-center rounded-[6px] px-2.5 text-left text-[13px] hover:bg-hover disabled:text-ink-3">
+                          {v} {k === s.input.tone && <span className="ml-auto text-[11px]">atual</span>}
+                        </button>
+                      </Popover.Close>
+                    ))}
+                  </Popover.Content>
+                </Popover.Portal>
+              </Popover.Root>
+            </>
+          )}
           <CopyButton text={scriptText(s)} label="Copiar roteiro" />
-          <Button
-            size="sm"
-            variant="ghost"
-            icon={<Trash2 className="size-3.5" />}
-            onClick={async () => {
-              if (!window.confirm("Excluir este roteiro?")) return;
-              await fetch(`/api/scripts/${s.id}`, { method: "DELETE" });
-              router.push("/scripts");
-              router.refresh();
-            }}
-          >
-            Excluir
-          </Button>
+          {owner && (
+            <Button
+              size="sm"
+              variant="ghost"
+              icon={<Trash2 className="size-3.5" />}
+              onClick={async () => {
+                if (!window.confirm("Excluir este roteiro?")) return;
+                await fetch(`/api/scripts/${s.id}`, { method: "DELETE" });
+                router.push("/scripts");
+                router.refresh();
+              }}
+            >
+              Excluir
+            </Button>
+          )}
         </div>
       </div>
 
@@ -727,17 +748,21 @@ function describe(r: ScriptRequestRow) {
   return `${what}${kind} · tom ${TONES[i.tone].toLowerCase()}`;
 }
 
-function PendingRequests({ requests }: { requests: ScriptRequestRow[] }) {
+function PendingRequests({ requests, owner }: { requests: ScriptRequestRow[]; owner: boolean }) {
   const router = useRouter();
   return (
     <Card className="p-5">
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <Terminal className="size-4 text-ink" />
         <span className="text-[13.5px] font-semibold">Aguardando o Claude Code ({requests.length})</span>
-        <span className="ml-auto flex items-center gap-2 text-[12px] text-ink-3">
-          No Claude Code, diga “{CC_PHRASE}”
-          <CopyButton text={CC_PHRASE} label="Copiar frase" />
-        </span>
+        {owner ? (
+          <span className="ml-auto flex items-center gap-2 text-[12px] text-ink-3">
+            No Claude Code, diga “{CC_PHRASE}”
+            <CopyButton text={CC_PHRASE} label="Copiar frase" />
+          </span>
+        ) : (
+          <span className="ml-auto text-[12.5px] text-ink-3">Serão escritos na atualização de segunda-feira.</span>
+        )}
       </div>
       <ul className="divide-y divide-hairline">
         {requests.map((r) => (
@@ -748,16 +773,18 @@ function PendingRequests({ requests }: { requests: ScriptRequestRow[] }) {
               {r.input.notes ? ` · ${r.input.notes}` : ""}
             </span>
             <span className="text-[11.5px] text-ink-3">{fmtAgo(r.createdAt)}</span>
-            <Button
-              size="sm"
-              variant="ghost"
-              icon={<X className="size-3.5" />}
-              aria-label={`Cancelar pedido ${r.id}`}
-              onClick={async () => {
-                await fetch(`/api/script-requests/${r.id}`, { method: "DELETE" });
-                router.refresh();
-              }}
-            />
+            {owner && (
+              <Button
+                size="sm"
+                variant="ghost"
+                icon={<X className="size-3.5" />}
+                aria-label={`Cancelar pedido ${r.id}`}
+                onClick={async () => {
+                  await fetch(`/api/script-requests/${r.id}`, { method: "DELETE" });
+                  router.refresh();
+                }}
+              />
+            )}
           </li>
         ))}
       </ul>

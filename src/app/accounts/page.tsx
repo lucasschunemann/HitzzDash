@@ -10,12 +10,14 @@ import { GROUPS, FORMATS, hookLabel } from "@/lib/taxonomy";
 import { fmtCompact, fmtPct } from "@/lib/format";
 import { ApiButton } from "@/components/actions";
 import { RefreshCw } from "lucide-react";
+import { isOwner } from "@/server/role";
 
 export const metadata: Metadata = { title: "Concorrentes" };
 
 export default async function AccountsPage() {
   await connection();
   const stats = await accountStats();
+  const owner = await isOwner();
   const order = { own: 0, competitor: 1, reference: 2 } as const;
   const sorted = [...stats].sort((a, b) => order[a.group] - order[b.group] || (b.medianViews ?? 0) - (a.medianViews ?? 0));
   const own = stats.find((s) => s.group === "own");
@@ -39,9 +41,11 @@ export default async function AccountsPage() {
         title="Concorrentes"
         subtitle="Compare frequência, alcance típico e taxa de outliers entre as contas, e veja onde a UseHitzz está."
         actions={
-          <ApiButton url="/api/refresh" icon={<RefreshCw className="size-3.5" />} success="Coleta iniciada para {accounts} contas">
-            Coletar todas
-          </ApiButton>
+          owner && (
+            <ApiButton url="/api/refresh" icon={<RefreshCw className="size-3.5" />} success="Coleta iniciada para {accounts} contas">
+              Coletar todas
+            </ApiButton>
+          )
         }
       />
       <div className="space-y-20 px-page">
@@ -133,15 +137,17 @@ export default async function AccountsPage() {
           </div>
         </section>
 
-        <section id="gerenciar">
-          <SectionTitle hint="Concorrente direto, referência do mercado ou conta própria. Novas contas entram na fila de coleta na hora.">Gerenciar contas</SectionTitle>
-          <div className="mb-5">
-            <Suspense>
-              <AddAccountForm />
-            </Suspense>
-          </div>
-          <AccountTable accounts={sorted} />
-        </section>
+        {owner && (
+          <section id="gerenciar">
+            <SectionTitle hint="Concorrente direto, referência do mercado ou conta própria. Novas contas entram na fila de coleta na hora.">Gerenciar contas</SectionTitle>
+            <div className="mb-5">
+              <Suspense>
+                <AddAccountForm />
+              </Suspense>
+            </div>
+            <AccountTable accounts={sorted} />
+          </section>
+        )}
       </div>
     </div>
   );

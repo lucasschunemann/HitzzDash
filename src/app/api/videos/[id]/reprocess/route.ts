@@ -3,9 +3,12 @@ import { db, schema } from "@/db";
 import { enqueue } from "@/server/queue";
 import { ensureProcessingRow } from "@/server/pipeline";
 import { hasKey } from "@/server/env";
+import { ownerOnly } from "@/server/role";
 
 /** Reprocessa um vídeo: retoma etapas pendentes/falhas; com {analysis: true} força nova análise. */
 export async function POST(req: Request, ctx: RouteContext<"/api/videos/[id]/reprocess">) {
+  const denied = await ownerOnly();
+  if (denied) return denied;
   const { id: raw } = await ctx.params;
   const id = decodeURIComponent(raw);
   const body = (await req.json().catch(() => ({}))) as { analysis?: boolean };

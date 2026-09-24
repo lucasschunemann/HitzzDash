@@ -3,8 +3,11 @@ import { db, schema } from "@/db";
 import { scrapeAccount } from "@/server/boot";
 import { hasKey } from "@/server/env";
 import { isWorkerHost } from "@/server/host";
+import { ownerOnly } from "@/server/role";
 
 export async function POST(_req: Request, ctx: RouteContext<"/api/accounts/[id]/scrape">) {
+  const denied = await ownerOnly();
+  if (denied) return denied;
   const id = Number((await ctx.params).id);
   const acc = await db.select().from(schema.accounts).where(eq(schema.accounts.id, id)).get();
   if (!acc) return Response.json({ error: "Conta não encontrada" }, { status: 404 });
