@@ -25,8 +25,8 @@ export default async function VideosPage({ searchParams }: PageProps<"/videos">)
   };
   const analyzed = rows.filter((r) => r.hookType).length;
   return (
-    <div className="px-4 pb-16 md:px-8">
-      <div className="-mx-4 md:-mx-8">
+    <div className="px-page pb-16">
+      <div className="bleed-page">
         <PageHeader title="Vídeos" subtitle={`${rows.length} Reels coletados · ${analyzed} analisados. Clique para abrir o detalhe; ↑/↓ navega no painel.`} />
       </div>
       <VideoDatabase rows={rows.map(toClientRow)} accounts={accounts} initial={initial} now={requestNow()} />

@@ -30,7 +30,7 @@ export default async function ScriptsPage({ searchParams }: PageProps<"/scripts"
   const seedHook = typeof sp.hook === "string" && sp.hook in HOOK_TYPES ? sp.hook : undefined;
   const ins = await getInsights();
   return (
-    <div className="mx-auto max-w-[1280px] pb-20">
+    <div className="mx-auto max-w-[1320px] pb-24">
       <PageHeader title="Roteiros" subtitle="Roteiros originais de Reels, escolhidos e justificados com os dados coletados." />
       <ScriptStudio
         key={selected?.id ?? "new"}

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { connection } from "next/server";
 import "./globals.css";
 import { Shell } from "@/components/shell";
+import { THEME_SCRIPT } from "@/lib/theme-script";
 import { ENV_VARS, hasKey, transcriberMode } from "@/server/env";
 import { hasWhisper } from "@/server/whisper";
 import { isVercel } from "@/server/host";
@@ -19,8 +20,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5f5f7" },
-    { media: "(prefers-color-scheme: dark)", color: "#121214" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#191919" },
   ],
 };
 
@@ -41,7 +42,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   }
   const ffmpeg = vercel ? true : await hasFfmpeg();
   return (
-    <html lang="pt-BR" className={`${inter.variable} h-full antialiased`}>
+    <html lang="pt-BR" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="min-h-full">
         <Shell status={{ missing, ffmpeg, live: vercel ? "poll" : "sse", auth: Boolean(process.env.DASHBOARD_PASSWORD) }}>{children}</Shell>
       </body>

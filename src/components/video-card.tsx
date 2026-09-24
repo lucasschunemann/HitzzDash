@@ -25,13 +25,13 @@ export function VideoCard({ row, list, size = "md", showHook = true }: { row: Cl
     <button
       ref={ref}
       onClick={() => openVideo(row, ref.current, list)}
-      className={cn("group flex w-full flex-col text-left outline-none transition-transform duration-200 active:scale-[0.98]", size === "sm" ? "w-[132px] shrink-0" : "")}
+      className={cn("group flex w-full flex-col text-left outline-none transition-transform duration-200 active:scale-[0.98]", size === "sm" ? "w-[140px] shrink-0 md:w-[150px]" : "")}
       aria-label={`Abrir vídeo de @${row.handle}`}
     >
-      <div className="relative aspect-[9/16] w-full overflow-hidden rounded-[12px] bg-surface-2 shadow-sm ring-1 ring-hairline transition-shadow duration-200 group-hover:shadow-md group-focus-visible:ring-2 group-focus-visible:ring-accent">
+      <div className="relative aspect-[9/16] w-full overflow-hidden rounded-[8px] bg-surface-2 ring-1 ring-hairline transition-[box-shadow,transform] duration-300 ease-[cubic-bezier(.22,1,.36,1)] group-hover:-translate-y-1 group-hover:shadow-[var(--shadow-md)] group-focus-visible:ring-2 group-focus-visible:ring-[var(--focus)]">
         {row.thumb ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={row.thumb} alt="" loading="lazy" className="size-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]" />
+          <img src={row.thumb} alt="" loading="lazy" className="size-full object-cover transition-transform duration-500 ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.04]" />
         ) : (
           <div className="grid size-full place-items-center text-ink-3">
             <Play className="size-5" />
@@ -45,9 +45,9 @@ export function VideoCard({ row, list, size = "md", showHook = true }: { row: Cl
         {row.isPinned && <Pin className="absolute right-2 top-2 size-3.5 text-white drop-shadow" />}
         {row.isDemo && <span className="absolute left-1.5 top-1.5 rounded-full bg-black/45 px-1.5 text-[9.5px] font-semibold uppercase tracking-wide text-white backdrop-blur">demo</span>}
       </div>
-      <div className="mt-1.5 min-w-0 px-0.5">
+      <div className="mt-2 min-w-0 space-y-0.5 px-0.5">
         <div className="flex items-center justify-between gap-1">
-          <span className="truncate text-[12px] font-medium text-ink">@{row.handle}</span>
+          <span className="truncate text-[13px] font-medium text-ink">@{row.handle}</span>
           <span className="shrink-0 text-[11px] text-ink-3">{fmtAgo(row.publishedAt)}</span>
         </div>
         <BandBadge band={row.score?.band ?? null} ratio={row.score?.ratio} projected={row.score?.maturing} />
@@ -65,12 +65,12 @@ export function VideoChip({ row, list }: { row: ClientVideoRow; list?: string[] 
     <button
       ref={ref}
       onClick={() => openVideo(row, ref.current, list)}
-      className="group inline-flex items-center gap-2 rounded-[10px] py-1 pl-1 pr-2.5 text-left ring-1 ring-hairline transition-colors hover:bg-surface-2"
+      className="group inline-flex items-center gap-2 rounded-[6px] py-1 pl-1 pr-2.5 text-left ring-1 ring-hairline transition-[background-color,transform] duration-150 hover:bg-hover active:scale-[0.97]"
       title={`Abrir vídeo de @${row.handle}`}
     >
-      <span className="h-10 w-[23px] shrink-0 overflow-hidden rounded-[6px] bg-surface-2">
+      <span className="h-10 w-[23px] shrink-0 overflow-hidden rounded-[4px] bg-surface-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        {row.thumb && <img src={row.thumb} alt="" loading="lazy" className="size-full object-cover" />}
+        {row.thumb && <img src={row.thumb} alt="" loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-110" />}
       </span>
       <span className="min-w-0 leading-tight">
         <span className="block truncate text-[11.5px] font-medium text-ink">@{row.handle}</span>

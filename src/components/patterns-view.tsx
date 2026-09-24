@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { ArrowRight, TrendingUp, TrendingDown, Minus, Sparkles } from "lucide-react";
 import type { ClientVideoRow } from "@/server/data";
@@ -28,7 +29,7 @@ export function RankingCard({ title, hint, stats, rows, scriptParam, metric = "s
     n: x.n,
   }));
   return (
-    <Card className="p-4 md:p-5">
+    <Card className="p-5 md:p-6">
       <SectionTitle hint={hint}>{title}</SectionTitle>
       {stats.length === 0 ? (
         <p className="py-6 text-center text-[13px] text-ink-3">Sem dados suficientes.</p>
@@ -39,13 +40,13 @@ export function RankingCard({ title, hint, stats, rows, scriptParam, metric = "s
             {metric === "score" ? "Barra = score mediano relativo à mediana da própria conta (0 = normal). Linha fina = intervalo de 90%. Cinza claro = menos de 5 vídeos." : "Engajamento mediano (curtidas + comentários por view)."}
           </p>
           {s && (
-            <div className="mt-4 rounded-xl bg-surface-2/60 p-3.5">
+            <motion.div key={s.key} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }} className="mt-5 rounded-[8px] bg-surface-2 p-4">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[13.5px] font-semibold">{s.label}</span>
+                <span className="text-[14px] font-semibold">{s.label}</span>
                 <EvidenceBadge level={s.evidence} hint={EVIDENCE_HINT[s.evidence]} />
                 {scriptParam && (
-                  <Link href={`/scripts?new=1&${scriptParam}=${s.key}`} className="ml-auto inline-flex items-center gap-1 text-[12.5px] font-medium text-accent-ink hover:underline">
-                    Roteiro com isso <ArrowRight className="size-3.5" />
+                  <Link href={`/scripts?new=1&${scriptParam}=${s.key}`} className="group ml-auto inline-flex items-center gap-1 rounded-[6px] px-2 py-1 text-[13px] font-medium text-ink transition-colors hover:bg-hover">
+                    Roteiro com isso <ArrowRight className="nudge size-3.5" />
                   </Link>
                 )}
               </div>
@@ -57,7 +58,7 @@ export function RankingCard({ title, hint, stats, rows, scriptParam, metric = "s
               <div className="mt-2.5 flex flex-wrap gap-1.5">
                 {s.topIds.map((id) => (rows[id] ? <VideoChip key={id} row={rows[id]} list={s.topIds} /> : null))}
               </div>
-            </div>
+            </motion.div>
           )}
         </>
       )}
@@ -66,9 +67,9 @@ export function RankingCard({ title, hint, stats, rows, scriptParam, metric = "s
 }
 
 const TREND_ICON = {
-  acelerando: <TrendingUp className="size-3.5 text-accent" />,
-  "ganhando tração": <TrendingUp className="size-3.5 text-accent-ink" />,
-  novo: <Sparkles className="size-3.5 text-accent-ink" />,
+  acelerando: <TrendingUp className="size-3.5 text-[var(--band-breakout)]" />,
+  "ganhando tração": <TrendingUp className="size-3.5 text-[var(--band-breakout)]" />,
+  novo: <Sparkles className="size-3.5 text-ink" />,
   estável: <Minus className="size-3.5 text-ink-3" />,
   esfriando: <TrendingDown className="size-3.5 text-[var(--band-below)]" />,
 };
@@ -79,7 +80,7 @@ export function TrendList({ trends, labelOf, rows }: { trends: TrendStat[]; labe
   return (
     <div className="divide-y divide-hairline">
       {shown.map((t) => (
-        <div key={t.key} className="py-2.5">
+        <div key={t.key} className="-mx-2 rounded-[6px] px-2 py-3 transition-colors hover:bg-hover">
           <div className="flex items-center gap-2">
             {TREND_ICON[t.status]}
             <span className="min-w-0 truncate text-[13px] font-medium text-ink">{labelOf[t.key] ?? t.key}</span>

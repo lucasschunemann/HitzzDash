@@ -1,113 +1,194 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. Linguagem Apple (materiais translúcidos, hierarquia por tipografia, uma cor de
- * destaque) sobre estrutura Notion (blocos, propriedades, visões de banco).
- * Claro e escuro automáticos via prefers-color-scheme.
+ * Design tokens — linguagem Notion: papel branco (ou grafite no escuro), tinta quase preta,
+ * cinzas quentes, bordas finíssimas, sem sombras em blocos. Preto e branco são a identidade;
+ * cor só aparece em dados (faixas de desempenho, gráficos) e em estados (bom/atenção/erro).
+ *
+ * Tema: data-theme="light" | "dark" no <html>; sem atributo segue o sistema.
  */
 :root {
   color-scheme: light;
-  --bg: #f5f5f7;
+  --bg: #ffffff;
+  --sidebar: #f8f8f7;
   --surface: #ffffff;
-  --surface-2: #f0f0f3;
-  --surface-3: #e7e7eb;
-  --glass: rgba(250, 250, 252, 0.72);
-  --glass-strong: rgba(255, 255, 255, 0.86);
-  --hairline: rgba(0, 0, 0, 0.07);
-  --hairline-strong: rgba(0, 0, 0, 0.12);
-  --text: #1d1d1f;
-  --text-2: #5e5e63;
-  --text-3: #8e8e93;
-  --accent: #e8502a;
-  --accent-hover: #d4461f;
-  --accent-soft: rgba(232, 80, 42, 0.1);
-  --accent-ink: #b83a18;
-  --focus: rgba(232, 80, 42, 0.45);
+  --surface-2: #f4f4f2;
+  --surface-3: #e9e9e7;
+  --hover: rgba(55, 53, 47, 0.06);
+  --active: rgba(55, 53, 47, 0.1);
+  --glass: rgba(255, 255, 255, 0.86);
+  --glass-strong: #ffffff;
+  --menu: #ffffff;
+  --overlay: rgba(15, 15, 15, 0.18);
+  --hairline: rgba(55, 53, 47, 0.09);
+  --hairline-strong: rgba(55, 53, 47, 0.16);
+  --text: #2f2e2b;
+  --text-2: #73726e;
+  --text-3: #a3a29e;
+  --accent: #1f1f1e;
+  --accent-hover: #000000;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(55, 53, 47, 0.08);
+  --accent-ink: #2f2e2b;
+  --focus: rgba(35, 131, 226, 0.45);
+  --tooltip: #1f1f1e;
+  --tooltip-fg: #ffffff;
+  --on-tint: #ffffff;
 
-  /* score: divergente azul (abaixo) ↔ laranja (acima), neutro cinza */
-  --band-below: #2a78d6;
-  --band-normal: #a3a29c;
-  --band-above: #f0a07e;
-  --band-breakout: #e8502a;
-  --band-maturing: #c9c8c2;
+  /* score: azul (abaixo) ↔ laranja (acima), neutro cinza — paleta de tags do Notion */
+  --band-below: #3f89c6;
+  --band-normal: #b9b8b4;
+  --band-above: #f1ad6b;
+  --band-breakout: #d9730d;
+  --band-maturing: #dcdbd8;
 
   /* sequencial azul (mapa de calor) */
-  --seq-0: #f0efec;
-  --seq-1: #cde2fb;
-  --seq-2: #9ec5f4;
-  --seq-3: #6da7ec;
-  --seq-4: #3987e5;
-  --seq-5: #256abf;
-  --seq-6: #184f95;
+  --seq-0: #f4f4f2;
+  --seq-1: #dbe9f6;
+  --seq-2: #b6d3ee;
+  --seq-3: #86b6e2;
+  --seq-4: #4f94d2;
+  --seq-5: #2f75b5;
+  --seq-6: #1f5688;
 
-  --cat-1: #2a78d6;
-  --cat-2: #eb6834;
-  --cat-3: #1baf7a;
-  --cat-other: #a3a29c;
+  --cat-1: #3f89c6;
+  --cat-2: #d9730d;
+  --cat-3: #448361;
+  --cat-other: #b9b8b4;
 
-  --good: #1f8a4c;
-  --warn: #b7791f;
-  --bad: #d23b3b;
+  --good: #3a7d5b;
+  --warn: #b7802a;
+  --bad: #d44c47;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 1px rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.05), 0 16px 48px rgba(0, 0, 0, 0.14);
+  --shadow-sm: 0 1px 2px rgba(15, 15, 15, 0.04);
+  --shadow-md: 0 0 0 1px rgba(15, 15, 15, 0.03), 0 3px 6px rgba(15, 15, 15, 0.06), 0 9px 24px rgba(15, 15, 15, 0.08);
+  --shadow-lg: 0 0 0 1px rgba(15, 15, 15, 0.04), 0 3px 6px rgba(15, 15, 15, 0.08), 0 9px 24px rgba(15, 15, 15, 0.16);
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg: #121214;
-    --surface: #1c1c1f;
-    --surface-2: #26262a;
-    --surface-3: #313136;
-    --glass: rgba(28, 28, 31, 0.7);
-    --glass-strong: rgba(34, 34, 38, 0.86);
-    --hairline: rgba(255, 255, 255, 0.07);
-    --hairline-strong: rgba(255, 255, 255, 0.13);
-    --text: #f5f5f7;
-    --text-2: #aeaeb4;
-    --text-3: #76767c;
-    --accent: #ff6a45;
-    --accent-hover: #ff8061;
-    --accent-soft: rgba(255, 106, 69, 0.14);
-    --accent-ink: #ff9a80;
-    --focus: rgba(255, 106, 69, 0.5);
+    --bg: #191919;
+    --sidebar: #202020;
+    --surface: #1f1f1f;
+    --surface-2: #262626;
+    --surface-3: #323232;
+    --hover: rgba(255, 255, 255, 0.055);
+    --active: rgba(255, 255, 255, 0.09);
+    --glass: rgba(25, 25, 25, 0.86);
+    --glass-strong: #252525;
+    --menu: #252525;
+    --overlay: rgba(0, 0, 0, 0.5);
+    --hairline: rgba(255, 255, 255, 0.075);
+    --hairline-strong: rgba(255, 255, 255, 0.14);
+    --text: #e9e9e7;
+    --text-2: #a5a5a2;
+    --text-3: #6f6f6c;
+    --accent: #ededeb;
+    --accent-hover: #ffffff;
+    --accent-fg: #191919;
+    --accent-soft: rgba(255, 255, 255, 0.08);
+    --accent-ink: #e9e9e7;
+    --focus: rgba(82, 156, 202, 0.55);
+    --tooltip: #3a3a3a;
+    --tooltip-fg: #f2f2f0;
+    --on-tint: #191919;
 
-    --band-below: #3987e5;
-    --band-normal: #6b6a66;
-    --band-above: #c9784f;
-    --band-breakout: #ff6a45;
-    --band-maturing: #4a4a47;
+    --band-below: #529cca;
+    --band-normal: #5d5d5a;
+    --band-above: #b8773e;
+    --band-breakout: #ffa344;
+    --band-maturing: #3c3c3a;
 
-    --seq-0: #26262a;
-    --seq-1: #104281;
-    --seq-2: #184f95;
-    --seq-3: #1c5cab;
-    --seq-4: #2a78d6;
-    --seq-5: #5598e7;
-    --seq-6: #9ec5f4;
+    --seq-0: #262626;
+    --seq-1: #173652;
+    --seq-2: #1e4a70;
+    --seq-3: #255f8f;
+    --seq-4: #3478b0;
+    --seq-5: #529cca;
+    --seq-6: #93c2e2;
 
-    --cat-1: #3987e5;
-    --cat-2: #d95926;
-    --cat-3: #199e70;
-    --cat-other: #6b6a66;
+    --cat-1: #529cca;
+    --cat-2: #ffa344;
+    --cat-3: #4dab9a;
+    --cat-other: #5d5d5a;
 
-    --good: #3fbf73;
-    --warn: #e0a84a;
-    --bad: #ff6b6b;
+    --good: #4dab9a;
+    --warn: #d9a53f;
+    --bad: #ff7369;
 
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
-    --shadow-lg: 0 2px 8px rgba(0, 0, 0, 0.5), 0 24px 64px rgba(0, 0, 0, 0.55);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 3px 6px rgba(0, 0, 0, 0.3), 0 9px 24px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 0 0 1px rgba(255, 255, 255, 0.07), 0 3px 6px rgba(0, 0, 0, 0.35), 0 9px 24px rgba(0, 0, 0, 0.5);
   }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #191919;
+  --sidebar: #202020;
+  --surface: #1f1f1f;
+  --surface-2: #262626;
+  --surface-3: #323232;
+  --hover: rgba(255, 255, 255, 0.055);
+  --active: rgba(255, 255, 255, 0.09);
+  --glass: rgba(25, 25, 25, 0.86);
+  --glass-strong: #252525;
+  --menu: #252525;
+  --overlay: rgba(0, 0, 0, 0.5);
+  --hairline: rgba(255, 255, 255, 0.075);
+  --hairline-strong: rgba(255, 255, 255, 0.14);
+  --text: #e9e9e7;
+  --text-2: #a5a5a2;
+  --text-3: #6f6f6c;
+  --accent: #ededeb;
+  --accent-hover: #ffffff;
+  --accent-fg: #191919;
+  --accent-soft: rgba(255, 255, 255, 0.08);
+  --accent-ink: #e9e9e7;
+  --focus: rgba(82, 156, 202, 0.55);
+  --tooltip: #3a3a3a;
+  --tooltip-fg: #f2f2f0;
+  --on-tint: #191919;
+
+  --band-below: #529cca;
+  --band-normal: #5d5d5a;
+  --band-above: #b8773e;
+  --band-breakout: #ffa344;
+  --band-maturing: #3c3c3a;
+
+  --seq-0: #262626;
+  --seq-1: #173652;
+  --seq-2: #1e4a70;
+  --seq-3: #255f8f;
+  --seq-4: #3478b0;
+  --seq-5: #529cca;
+  --seq-6: #93c2e2;
+
+  --cat-1: #529cca;
+  --cat-2: #ffa344;
+  --cat-3: #4dab9a;
+  --cat-other: #5d5d5a;
+
+  --good: #4dab9a;
+  --warn: #d9a53f;
+  --bad: #ff7369;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 3px 6px rgba(0, 0, 0, 0.3), 0 9px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 0 0 1px rgba(255, 255, 255, 0.07), 0 3px 6px rgba(0, 0, 0, 0.35), 0 9px 24px rgba(0, 0, 0, 0.5);
 }
 
 @theme inline {
   --color-bg: var(--bg);
+  --color-sidebar: var(--sidebar);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-surface-3: var(--surface-3);
+  --color-hover: var(--hover);
+  --color-active: var(--active);
   --color-glass: var(--glass);
   --color-hairline: var(--hairline);
   --color-hairline-strong: var(--hairline-strong);
@@ -116,17 +197,39 @@
   --color-ink-3: var(--text-3);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
+  --color-on-accent: var(--accent-fg);
   --color-accent-soft: var(--accent-soft);
   --color-accent-ink: var(--accent-ink);
   --color-good: var(--good);
   --color-warn: var(--warn);
   --color-bad: var(--bad);
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", var(--font-inter), "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", var(--font-inter), Helvetica, "Apple Color Emoji", Arial, sans-serif;
+  --font-mono: "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
-  --radius-card: 14px;
+  --radius-card: 10px;
+}
+
+/* Margens laterais de página: generosas como no Notion, menores no celular */
+@utility px-page {
+  padding-inline: 20px;
+  @media (width >= 48rem) {
+    padding-inline: 40px;
+  }
+  @media (width >= 80rem) {
+    padding-inline: 72px;
+  }
+}
+
+@utility bleed-page {
+  margin-inline: -20px;
+  @media (width >= 48rem) {
+    margin-inline: -40px;
+  }
+  @media (width >= 80rem) {
+    margin-inline: -72px;
+  }
 }
 
 html,
@@ -135,12 +238,26 @@ body {
   color: var(--text);
 }
 
+/* troca de tema suave (só cores; ativado por um instante pelo seletor de tema) */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition:
+    background-color 260ms var(--ease-out),
+    border-color 260ms var(--ease-out),
+    color 200ms var(--ease-out),
+    fill 200ms var(--ease-out),
+    box-shadow 260ms var(--ease-out) !important;
+}
+
 body {
   font-family: var(--font-sans);
   font-size: 14px;
-  line-height: 1.45;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  letter-spacing: -0.005em;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .tabular {
@@ -149,19 +266,141 @@ body {
 
 .glass {
   background: var(--glass);
-  -webkit-backdrop-filter: saturate(180%) blur(24px);
-  backdrop-filter: saturate(180%) blur(24px);
+  -webkit-backdrop-filter: saturate(160%) blur(16px);
+  backdrop-filter: saturate(160%) blur(16px);
 }
 
 .glass-strong {
   background: var(--glass-strong);
-  -webkit-backdrop-filter: saturate(180%) blur(30px);
-  backdrop-filter: saturate(180%) blur(30px);
 }
 
-/* cantos contínuos (squircle) onde houver suporte */
-.squircle {
-  corner-shape: squircle;
+/* Menus, popovers e diálogos: superfície sólida com a sombra em camadas do Notion */
+.menu-surface {
+  background: var(--menu);
+  box-shadow: var(--shadow-lg);
+  transform-origin: var(--radix-popover-content-transform-origin, var(--radix-tooltip-content-transform-origin, top center));
+}
+
+.menu-surface[data-state="open"],
+.menu-surface[data-state="delayed-open"],
+.menu-surface[data-state="instant-open"] {
+  animation: pop-in 160ms var(--ease-out);
+}
+
+.menu-surface[data-state="closed"] {
+  animation: pop-out 110ms ease-in forwards;
+}
+
+.tooltip {
+  background: var(--tooltip);
+  color: var(--tooltip-fg);
+  box-shadow: var(--shadow-md);
+  transform-origin: var(--radix-tooltip-content-transform-origin);
+  animation: pop-in 140ms var(--ease-out);
+}
+
+.dialog-in[data-state="open"] {
+  animation: dialog-in 200ms var(--ease-out);
+}
+
+.overlay-in[data-state="open"] {
+  animation: fade-in 180ms ease-out;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pop-out {
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Entrada de página e revelação em cascata dos blocos */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.page-in {
+  animation: rise-in 420ms var(--ease-out) both;
+}
+
+.stagger > * {
+  animation: rise-in 480ms var(--ease-out) both;
+}
+.stagger > *:nth-child(2) { animation-delay: 40ms; }
+.stagger > *:nth-child(3) { animation-delay: 80ms; }
+.stagger > *:nth-child(4) { animation-delay: 120ms; }
+.stagger > *:nth-child(5) { animation-delay: 160ms; }
+.stagger > *:nth-child(6) { animation-delay: 200ms; }
+.stagger > *:nth-child(7) { animation-delay: 240ms; }
+.stagger > *:nth-child(n + 8) { animation-delay: 280ms; }
+
+/* Sublinhado que desenha da esquerda para a direita */
+.link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 260ms var(--ease-out), color 150ms;
+}
+.link-underline:hover,
+.link-underline:focus-visible {
+  background-size: 100% 1px;
+}
+
+/* Setas e ícones que "andam" no hover do pai */
+.nudge {
+  transition: transform 220ms var(--ease-out);
+}
+.group:hover .nudge,
+.group:focus-visible .nudge {
+  transform: translateX(3px);
+}
+
+/* Bloco interativo (cartões clicáveis) */
+.block-hover {
+  transition:
+    background-color 160ms ease,
+    box-shadow 220ms var(--ease-out),
+    transform 220ms var(--ease-out);
+}
+.block-hover:hover {
+  background-color: color-mix(in srgb, var(--surface) 70%, var(--surface-2));
+  box-shadow: var(--shadow-md);
 }
 
 :focus-visible {
@@ -171,12 +410,24 @@ body {
 }
 
 ::selection {
-  background: var(--accent-soft);
+  background: rgba(35, 131, 226, 0.22);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--accent);
 }
 
 .scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: var(--hairline-strong) transparent;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 @keyframes shimmer {
@@ -191,8 +442,8 @@ body {
 .skeleton {
   background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 37%, var(--surface-2) 63%);
   background-size: 400% 100%;
-  animation: shimmer 1.4s ease infinite;
-  border-radius: 8px;
+  animation: shimmer 1.6s ease infinite;
+  border-radius: 6px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -201,6 +452,7 @@ body {
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }

@@ -24,12 +24,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       ref={ref}
       disabled={disabled || loading}
       className={cn(
-        "squircle inline-flex select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-[10px] font-medium transition-[background,color,box-shadow,transform] duration-150 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50",
-        size === "sm" ? "h-7 px-2.5 text-[12.5px]" : "h-8.5 px-3.5 text-[13px]",
-        variant === "primary" && "bg-accent text-white shadow-sm hover:bg-accent-hover",
-        variant === "secondary" && "bg-surface text-ink shadow-sm ring-1 ring-hairline hover:bg-surface-2",
-        variant === "ghost" && "text-ink-2 hover:bg-surface-2 hover:text-ink",
-        variant === "danger" && "bg-surface text-bad ring-1 ring-hairline hover:bg-bad/10",
+        "inline-flex select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-[6px] font-medium transition-[background-color,color,box-shadow,transform] duration-150 ease-out active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45 [&_svg]:shrink-0",
+        size === "sm" ? "h-7 px-2 text-[12.5px]" : "h-8 px-3 text-[13.5px]",
+        variant === "primary" && "bg-accent text-on-accent shadow-sm hover:bg-accent-hover",
+        variant === "secondary" && "bg-surface text-ink ring-1 ring-hairline-strong hover:bg-hover",
+        variant === "ghost" && "text-ink-2 hover:bg-hover hover:text-ink",
+        variant === "danger" && "bg-surface text-bad ring-1 ring-hairline-strong hover:bg-bad/8",
         className,
       )}
       {...rest}
@@ -49,9 +49,9 @@ export function Spinner({ className }: { className?: string }) {
   );
 }
 
-export function Card({ className, children, ...rest }: React.HTMLAttributes<HTMLDivElement>) {
+export function Card({ className, children, interactive, ...rest }: React.HTMLAttributes<HTMLDivElement> & { interactive?: boolean }) {
   return (
-    <div className={cn("squircle rounded-[var(--radius-card)] bg-surface shadow-sm ring-1 ring-hairline", className)} {...rest}>
+    <div className={cn("rounded-[var(--radius-card)] bg-surface ring-1 ring-hairline", interactive && "block-hover", className)} {...rest}>
       {children}
     </div>
   );
@@ -59,12 +59,12 @@ export function Card({ className, children, ...rest }: React.HTMLAttributes<HTML
 
 export function SectionTitle({ children, hint, action, id }: { children: ReactNode; hint?: ReactNode; action?: ReactNode; id?: string }) {
   return (
-    <div className="mb-3 flex items-end justify-between gap-3">
-      <div>
-        <h2 id={id} className="text-[15px] font-semibold tracking-[-0.01em] text-ink">
+    <div className="mb-4 flex items-end justify-between gap-3">
+      <div className="min-w-0">
+        <h2 id={id} className="text-[17px] font-semibold tracking-[-0.012em] text-ink">
           {children}
         </h2>
-        {hint && <p className="mt-0.5 text-[12.5px] text-ink-3">{hint}</p>}
+        {hint && <p className="mt-1 max-w-[70ch] text-[13px] leading-relaxed text-ink-3">{hint}</p>}
       </div>
       {action}
     </div>
@@ -76,14 +76,14 @@ export function Pill({ children, tone = "neutral", className, title }: { childre
     <span
       title={title}
       className={cn(
-        "inline-flex h-5 items-center gap-1 whitespace-nowrap rounded-full px-2 text-[11.5px] font-medium",
-        tone === "neutral" && "bg-surface-2 text-ink-2",
-        tone === "accent" && "bg-accent-soft text-accent-ink",
+        "inline-flex h-5 items-center gap-1 whitespace-nowrap rounded-[4px] px-1.5 text-[12px] font-medium leading-none",
+        tone === "neutral" && "bg-accent-soft text-ink-2",
+        tone === "accent" && "bg-ink/[0.07] text-ink ring-1 ring-inset ring-ink/15",
         tone === "good" && "bg-good/12 text-good",
         tone === "warn" && "bg-warn/14 text-warn",
         tone === "bad" && "bg-bad/12 text-bad",
-        tone === "blue" && "bg-[var(--band-below)]/12 text-[var(--band-below)]",
-        tone === "outline" && "text-ink-2 ring-1 ring-hairline-strong",
+        tone === "blue" && "bg-[var(--band-below)]/14 text-[var(--band-below)]",
+        tone === "outline" && "text-ink-3 ring-1 ring-inset ring-hairline-strong",
         className,
       )}
     >
@@ -128,7 +128,7 @@ export function Tip({ content, children, side = "top" }: { content: ReactNode; c
         <Tooltip.Content
           side={side}
           sideOffset={6}
-          className="glass-strong z-[80] max-w-72 rounded-lg px-2.5 py-1.5 text-[12px] leading-snug text-ink shadow-lg ring-1 ring-hairline"
+          className="tooltip z-[80] max-w-72 rounded-[6px] px-2 py-1 text-[12px] font-medium leading-snug"
         >
           {content}
         </Tooltip.Content>
@@ -139,7 +139,7 @@ export function Tip({ content, children, side = "top" }: { content: ReactNode; c
 
 export function Segmented<T extends string>({ value, onChange, options, className, label }: { value: T; onChange: (v: T) => void; options: { value: T; label: ReactNode; icon?: ReactNode }[]; className?: string; label: string }) {
   return (
-    <div role="radiogroup" aria-label={label} className={cn("relative inline-flex rounded-[10px] bg-surface-2 p-0.5", className)}>
+    <div role="radiogroup" aria-label={label} className={cn("relative inline-flex rounded-[7px] bg-accent-soft p-0.5", className)}>
       {options.map((o) => {
         const active = o.value === value;
         return (
@@ -148,9 +148,9 @@ export function Segmented<T extends string>({ value, onChange, options, classNam
             role="radio"
             aria-checked={active}
             onClick={() => onChange(o.value)}
-            className={cn("relative z-10 inline-flex h-7 items-center gap-1.5 rounded-[8px] px-2.5 text-[12.5px] font-medium transition-colors", active ? "text-ink" : "text-ink-2 hover:text-ink")}
+            className={cn("relative z-10 inline-flex h-7 items-center gap-1.5 rounded-[5px] px-2.5 text-[13px] font-medium transition-colors", active ? "text-ink" : "text-ink-3 hover:text-ink-2")}
           >
-            {active && <motion.span layoutId={`seg-${label}`} transition={spring} className="absolute inset-0 -z-10 rounded-[8px] bg-surface shadow-sm ring-1 ring-hairline" />}
+            {active && <motion.span layoutId={`seg-${label}`} transition={spring} className="absolute inset-0 -z-10 rounded-[5px] bg-surface shadow-sm ring-1 ring-hairline" />}
             {o.icon}
             {o.label}
           </button>
@@ -162,25 +162,25 @@ export function Segmented<T extends string>({ value, onChange, options, classNam
 
 export function EmptyState({ icon, title, children, action }: { icon?: ReactNode; title: string; children?: ReactNode; action?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
-      {icon && <div className="mb-3 grid size-11 place-items-center rounded-2xl bg-surface-2 text-ink-3">{icon}</div>}
-      <p className="text-[14px] font-semibold text-ink">{title}</p>
-      {children && <div className="mt-1 max-w-sm text-[13px] text-ink-2">{children}</div>}
-      {action && <div className="mt-4">{action}</div>}
+    <div className="page-in flex flex-col items-center justify-center px-6 py-16 text-center">
+      {icon && <div className="mb-4 grid size-12 place-items-center rounded-[10px] bg-accent-soft text-ink-3 [&_svg]:size-5.5">{icon}</div>}
+      <p className="text-[15px] font-semibold text-ink">{title}</p>
+      {children && <div className="mt-1.5 max-w-sm text-[13.5px] leading-relaxed text-ink-2">{children}</div>}
+      {action && <div className="mt-5">{action}</div>}
     </div>
   );
 }
 
 export function Kbd({ children }: { children: ReactNode }) {
-  return <kbd className="rounded-[5px] bg-surface-2 px-1.5 py-px font-sans text-[11px] font-medium text-ink-3 ring-1 ring-hairline">{children}</kbd>;
+  return <kbd className="rounded-[4px] bg-accent-soft px-1.5 py-px font-sans text-[11px] font-medium text-ink-3">{children}</kbd>;
 }
 
 export function Stat({ label, value, sub, format }: { label: string; value: number | null; sub?: ReactNode; format?: (n: number) => string }) {
   return (
     <div>
-      <div className="text-[12px] font-medium text-ink-3">{label}</div>
-      <div className="mt-0.5 text-[26px] font-semibold tracking-[-0.02em] text-ink">{value === null ? "—" : <AnimatedNumber value={value} format={format} />}</div>
-      {sub && <div className="text-[12px] text-ink-3">{sub}</div>}
+      <div className="text-[13px] text-ink-2">{label}</div>
+      <div className="mt-2 text-[32px] font-semibold leading-none tracking-[-0.03em] text-ink">{value === null ? "—" : <AnimatedNumber value={value} format={format} />}</div>
+      {sub && <div className="mt-2 text-[12.5px] text-ink-3">{sub}</div>}
     </div>
   );
 }

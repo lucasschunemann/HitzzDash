@@ -129,7 +129,10 @@ Os limites do plano Hobby (banda, execuções, armazenamento do Blob) cobrem com
 | **Fila persistida no próprio SQLite, worker dentro do processo** | Sem Redis. Jobs têm `status`, tentativas, `runAfter` (backoff) e deduplicação por chave. Ao reiniciar, jobs que estavam rodando voltam para a fila. |
 | **SSE (`/api/events`) + `router.refresh()`** | Toda escrita registra um evento em `change_log`; o navegador recebe e re-renderiza a página sem recarregar. |
 | **Radix + Motion + cmdk + sonner** | Primitivas acessíveis (teclado, foco, ARIA), animações com spring, menu Cmd+K e toasts. |
-| **Gráficos em SVG próprio** | Controle total do visual Apple (marcas finas, desenho na entrada, tooltip), sem biblioteca pesada. |
+| **Gráficos em SVG próprio** | Controle total do visual (marcas finas, desenho na entrada, tooltip), sem biblioteca pesada. |
+| **Linguagem visual Notion, preto e branco** | Papel branco (ou grafite `#191919` no escuro), tinta quase preta, cinzas quentes, bordas finíssimas e nada de sombra em blocos. Cor só em dados (faixas de desempenho, gráficos) e estados. Tokens em `src/app/globals.css`; componentes-base em `src/components/ui.tsx`. |
+| **Tema claro/escuro/sistema** | `data-theme` no `<html>`, aplicado por um script no `<head>` antes da pintura (sem piscar) e salvo no navegador (`hitzz.theme`). Troca pelo botão do topo, pela barra lateral, por `⌘K` ou em Configurações → Aparência. |
+| **Três breakpoints** | Celular (< 768 px): barra superior + tab bar. Tablet (768–1023 px): barra lateral vira trilho de ícones com tooltips. Desktop (≥ 1024 px): barra lateral completa, recolhível com `⌘\`. Margens de página `px-page` (20/40/72 px). |
 | **Zod + structured outputs** | Toda saída do Claude é JSON validado por schema (`output_config.format`) e revalidado no servidor. |
 
 ### Modelo de dados (`src/db/schema.ts`)
@@ -200,7 +203,7 @@ Sem `ANTHROPIC_API_KEY`, o gerador roda em **modo heurístico**: escolhe as mesm
 - **Roteiros**: gerador e histórico.
 - **Configurações**: integrações (com teste), conta própria, agendamento, parâmetros de coleta, contas, fila de processamento (tentar de novo, cancelar, retomar pendentes) e dados de demonstração.
 
-Atalhos: `⌘K` busca e ações, `⌘\` recolhe a barra lateral, `/` busca na tabela, `Esc` fecha o painel. Claro/escuro automáticos; tab bar e sheets no celular; `prefers-reduced-motion` respeitado.
+Atalhos: `⌘K` busca, ações e tema, `⌘\` recolhe a barra lateral, `/` busca na tabela, `Esc` fecha o painel. Tema claro, escuro ou do sistema; tab bar e sheets no celular. Micro-interações: entrada de página e blocos em cascata, cartões que respondem ao hover, setas que andam, ícone de tema que gira, indicadores com spring, badges que "pulam" — tudo desligado com `prefers-reduced-motion`.
 
 ## Automação
 

@@ -95,38 +95,38 @@ export function PeekProvider({ children }: { children: ReactNode }) {
           {id && (
             <Dialog.Portal forceMount>
               <Dialog.Overlay asChild forceMount>
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }} className="fixed inset-0 z-[60] bg-black/15 dark:bg-black/40" />
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }} className="fixed inset-0 z-[60] bg-[var(--overlay)]" />
               </Dialog.Overlay>
-              <Dialog.Content asChild forceMount aria-describedby={undefined}>
+              <Dialog.Content asChild forceMount aria-describedby={undefined} onOpenAutoFocus={(e) => { e.preventDefault(); (e.currentTarget as HTMLElement).focus(); }}>
                 <motion.div
-                  initial={{ x: origin?.thumb ? 0 : 40, opacity: 0 }}
+                  initial={{ x: origin?.thumb ? 0 : 48, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: 40, opacity: 0 }}
+                  exit={{ x: 48, opacity: 0 }}
                   transition={{ type: "spring", stiffness: 380, damping: 36 }}
-                  className="glass-strong fixed inset-x-0 bottom-0 top-[6vh] z-[61] flex flex-col overflow-hidden rounded-t-[22px] shadow-lg ring-1 ring-hairline md:inset-y-2 md:left-auto md:right-2 md:top-2 md:w-[min(640px,calc(100vw-80px))] md:rounded-[20px]"
+                  className="fixed inset-x-0 bottom-0 top-[6vh] z-[61] flex flex-col overflow-hidden rounded-t-[16px] bg-bg shadow-[var(--shadow-lg)] md:inset-y-0 md:left-auto md:right-0 md:top-0 md:w-[min(680px,calc(100vw-72px))] md:rounded-none md:border-l md:border-hairline"
                 >
-                  <div className="flex h-12 shrink-0 items-center gap-1 border-b border-hairline px-3">
+                  <div className="flex h-12 shrink-0 items-center gap-1 px-3">
                     <div className="mx-auto h-1 w-9 rounded-full bg-hairline-strong md:hidden" aria-hidden />
                     <Dialog.Title className="sr-only">Detalhe do vídeo</Dialog.Title>
                     <div className="hidden items-center gap-0.5 md:flex">
                       <Tip content="Anterior (↑ ou k)">
-                        <button disabled={idx <= 0} onClick={() => step(-1)} className="grid size-8 place-items-center rounded-lg text-ink-2 hover:bg-surface-2 disabled:opacity-30" aria-label="Vídeo anterior">
+                        <button disabled={idx <= 0} onClick={() => step(-1)} className="grid size-8 place-items-center rounded-[6px] text-ink-2 transition-colors hover:bg-hover hover:text-ink disabled:opacity-30" aria-label="Vídeo anterior">
                           <ChevronUp className="size-4" />
                         </button>
                       </Tip>
                       <Tip content="Próximo (↓ ou j)">
-                        <button disabled={idx < 0 || idx >= list.length - 1} onClick={() => step(1)} className="grid size-8 place-items-center rounded-lg text-ink-2 hover:bg-surface-2 disabled:opacity-30" aria-label="Próximo vídeo">
+                        <button disabled={idx < 0 || idx >= list.length - 1} onClick={() => step(1)} className="grid size-8 place-items-center rounded-[6px] text-ink-2 transition-colors hover:bg-hover hover:text-ink disabled:opacity-30" aria-label="Próximo vídeo">
                           <ChevronDown className="size-4" />
                         </button>
                       </Tip>
                     </div>
                     <div className="ml-auto flex items-center gap-0.5">
                       <Tip content="Abrir em página cheia">
-                        <Link href={`/videos/${encodeURIComponent(id)}`} onClick={() => setId(null)} className="grid size-8 place-items-center rounded-lg text-ink-2 hover:bg-surface-2" aria-label="Abrir em página cheia">
+                        <Link href={`/videos/${encodeURIComponent(id)}`} onClick={() => setId(null)} className="grid size-8 place-items-center rounded-[6px] text-ink-2 transition-colors hover:bg-hover hover:text-ink" aria-label="Abrir em página cheia">
                           <Maximize2 className="size-4" />
                         </Link>
                       </Tip>
-                      <Dialog.Close className="grid size-8 place-items-center rounded-lg text-ink-2 hover:bg-surface-2" aria-label="Fechar (Esc)">
+                      <Dialog.Close className="grid size-8 place-items-center rounded-[6px] text-ink-2 transition-colors hover:bg-hover hover:text-ink" aria-label="Fechar (Esc)">
                         <X className="size-4" />
                       </Dialog.Close>
                     </div>

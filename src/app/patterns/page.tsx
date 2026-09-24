@@ -59,7 +59,7 @@ export default async function PatternsPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-[1280px] pb-20">
+    <div className="mx-auto max-w-[1320px] pb-24">
       <PageHeader
         title="Padrões"
         subtitle={
@@ -68,30 +68,30 @@ export default async function PatternsPage() {
           </>
         }
       />
-      <nav className="scrollbar-thin -mt-1 mb-6 flex gap-1.5 overflow-x-auto px-4 md:px-8" aria-label="Seções">
+      <nav className="glass no-scrollbar sticky top-12 z-20 -mt-2 mb-10 flex gap-0.5 overflow-x-auto border-b border-hairline px-page py-2" aria-label="Seções">
         {nav.map(([id, label]) => (
-          <a key={id} href={`#${id}`} className="h-7 shrink-0 rounded-full bg-surface px-3 text-[12.5px] font-medium leading-7 text-ink-2 shadow-sm ring-1 ring-hairline hover:text-ink">
+          <a key={id} href={`#${id}`} className="h-7 shrink-0 rounded-[6px] px-2.5 text-[13.5px] leading-7 text-ink-2 transition-colors hover:bg-hover hover:text-ink">
             {label}
           </a>
         ))}
       </nav>
 
-      <div className="space-y-9 px-4 md:px-8">
-        <section id="importam" className="scroll-mt-20">
+      <div className="space-y-20 px-page">
+        <section id="importam" className="scroll-mt-28">
           <SectionTitle hint="Ranqueados por diferença de score × tamanho de amostra × força da evidência. Padrões que descrevem os mesmos vídeos são agrupados.">
             Os padrões que importam agora
           </SectionTitle>
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="stagger grid gap-4 lg:grid-cols-2">
             {ins.topPatterns.map((p, i) => (
-              <Card key={p.id} className="p-4">
+              <Card key={p.id} interactive className="p-5">
                 <div className="flex items-start gap-3">
-                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-surface-2 text-[12px] font-semibold text-ink-2 tabular">{i + 1}</span>
+                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-accent-soft text-[12px] font-semibold text-ink-2 tabular">{i + 1}</span>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-1.5">
                       <Pill>{DIM_LABEL[p.dimension]}</Pill>
-                      <span className="text-[14px] font-semibold text-ink">{p.label}</span>
+                      <span className="text-[15px] font-semibold text-ink">{p.label}</span>
                     </div>
-                    <p className="mt-1 text-[12.5px] text-ink-2">{p.statement}</p>
+                    <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-2">{p.statement}</p>
                     {p.alsoAs.length > 0 && <p className="mt-0.5 text-[12px] text-ink-3">Os mesmos vídeos também aparecem como {p.alsoAs.join(", ")}.</p>}
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <EvidenceBadge level={p.evidence} hint={p.evidenceHint} />
@@ -100,7 +100,7 @@ export default async function PatternsPage() {
                       </span>
                     </div>
                     <p className="mt-2 flex items-start gap-1.5 text-[12.5px] font-medium text-ink">
-                      <ArrowRight className="mt-0.5 size-3.5 shrink-0 text-accent" />
+                      <ArrowRight className="mt-[3px] size-3.5 shrink-0" />
                       {p.action}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-1.5">
@@ -119,39 +119,39 @@ export default async function PatternsPage() {
           )}
         </section>
 
-        <section id="hooks" className="grid scroll-mt-20 gap-5 lg:grid-cols-2">
+        <section id="hooks" className="grid scroll-mt-28 gap-6 lg:grid-cols-2">
           <RankingCard title="Tipos de hook" hint="Score mediano por tipo de abertura" stats={hooks} rows={rows} scriptParam="hook" />
-          <Card className="p-4 md:p-5">
+          <Card className="p-5 md:p-6">
             <SectionTitle hint="Hooks que mais cresceram na janela recente (3 semanas) contra a anterior">Hooks em movimento</SectionTitle>
             <TrendList trends={ins.hookTrends} labelOf={hookLabels} rows={rows} />
           </Card>
         </section>
 
-        <section id="formatos" className="grid scroll-mt-20 gap-5 lg:grid-cols-2">
+        <section id="formatos" className="grid scroll-mt-28 gap-6 lg:grid-cols-2">
           <RankingCard title="Formatos" hint="Score mediano por formato de vídeo" stats={formats} rows={rows} />
-          <Card className="p-4 md:p-5">
+          <Card className="p-5 md:p-6">
             <SectionTitle hint="Janela recente (3 semanas) contra a anterior">Formatos em movimento</SectionTitle>
             <TrendList trends={ins.formatTrends} labelOf={formatLabels} rows={rows} />
           </Card>
         </section>
 
-        <section id="temas" className="scroll-mt-20 space-y-5">
-          <div className="grid gap-5 lg:grid-cols-2">
+        <section id="temas" className="scroll-mt-28 space-y-6">
+          <div className="grid gap-6 lg:grid-cols-2">
             <RankingCard title="Temas" hint="Score mediano por tema central" stats={themes} rows={rows} scriptParam="theme" />
-            <Card className="p-4 md:p-5">
+            <Card className="p-5 md:p-6">
               <SectionTitle hint="Temas ganhando tração e acelerando (volume e score recentes vs anteriores)">Temas em movimento</SectionTitle>
               <TrendList trends={ins.themeTrends} labelOf={themeLabels} rows={rows} />
             </Card>
           </div>
-          <Card className="p-4 md:p-5">
+          <Card className="p-5 md:p-6">
             <SectionTitle hint="Quantos vídeos de cada tema o mercado publicou por semana. Passe o mouse para ver o score médio.">Temas por semana</SectionTitle>
             <Heatmap weeks={ins.heat.weeks} rows={ins.heat.rows} labels={themeLabels} />
           </Card>
         </section>
 
-        <section id="estruturas" className="grid scroll-mt-20 gap-5 lg:grid-cols-2">
+        <section id="estruturas" className="grid scroll-mt-28 gap-6 lg:grid-cols-2">
           <RankingCard title="Estruturas de vídeo" hint="Sequência de beats (a partir de 3 vídeos com a mesma sequência)" stats={structures} rows={rows} />
-          <Card className="p-4 md:p-5">
+          <Card className="p-5 md:p-6">
             <SectionTitle hint="Trechos que se repetem nas aberturas de vídeos acima do normal (números e preços normalizados)">Frases de abertura recorrentes</SectionTitle>
             {ins.openings.length === 0 ? (
               <p className="py-6 text-center text-[13px] text-ink-3">Nenhuma frase se repete em 2+ vídeos de sucesso ainda.</p>
@@ -173,28 +173,28 @@ export default async function PatternsPage() {
           </Card>
         </section>
 
-        <section id="ctas" className="grid scroll-mt-20 gap-5 lg:grid-cols-2">
+        <section id="ctas" className="grid scroll-mt-28 gap-6 lg:grid-cols-2">
           <RankingCard title="CTAs por score" hint="Score mediano dos vídeos por tipo de CTA" stats={ctas} rows={rows} />
           <RankingCard title="CTAs por engajamento" hint="Qual CTA mais converte em curtidas e comentários por view" stats={[...ctas].sort((a, b) => (b.medianEngagement ?? 0) - (a.medianEngagement ?? 0))} rows={rows} metric="engagement" />
         </section>
 
-        <section id="ofertas" className="scroll-mt-20">
+        <section id="ofertas" className="scroll-mt-28">
           <RankingCard title="Tipos de oferta" hint="Desconto, lançamento, frete, parcelamento… qual performa melhor" stats={offers} rows={rows} />
         </section>
 
-        <section id="lacunas" className="scroll-mt-20">
+        <section id="lacunas" className="scroll-mt-28">
           <SectionTitle hint="Temas, formatos e hooks que funcionam no mercado e a UseHitzz não usa, ou que quase ninguém explora">Lacunas</SectionTitle>
           {ins.gaps.length === 0 ? (
             <Card>
               <EmptyState title="Nenhuma lacuna clara">Adicione a conta própria em Configurações para comparar a cobertura.</EmptyState>
             </Card>
           ) : (
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="stagger grid gap-4 lg:grid-cols-2">
               {ins.gaps.slice(0, 10).map((g) => {
                 const dim = g.dimension as Dimension;
                 const label = labelFor(dim, g.key);
                 return (
-                  <Card key={`${g.dimension}:${g.key}`} className="p-4">
+                  <Card key={`${g.dimension}:${g.key}`} interactive className="p-5">
                     <div className="flex flex-wrap items-center gap-1.5">
                       <Pill>{DIM_LABEL[dim]}</Pill>
                       <span className="text-[14px] font-semibold">{label}</span>
@@ -208,8 +208,8 @@ export default async function PatternsPage() {
                     <div className="mt-2 flex flex-wrap items-center gap-1.5">
                       {g.ids.map((id) => (rows[id] ? <VideoChip key={id} row={rows[id]} list={g.ids} /> : null))}
                       {(dim === "theme" || dim === "hookType") && (
-                        <Link href={`/scripts?new=1&${dim === "theme" ? "theme" : "hook"}=${g.key}`} className="ml-auto inline-flex items-center gap-1 text-[12.5px] font-medium text-accent-ink hover:underline">
-                          Roteiro <ArrowRight className="size-3.5" />
+                        <Link href={`/scripts?new=1&${dim === "theme" ? "theme" : "hook"}=${g.key}`} className="group ml-auto inline-flex items-center gap-1 rounded-[6px] px-2 py-1 text-[13px] font-medium text-ink transition-colors hover:bg-hover">
+                          Roteiro <ArrowRight className="nudge size-3.5" />
                         </Link>
                       )}
                     </div>
@@ -220,10 +220,10 @@ export default async function PatternsPage() {
           )}
         </section>
 
-        <section id="metodo" className="scroll-mt-20">
-          <Card className="p-5">
+        <section id="metodo" className="scroll-mt-28">
+          <Card className="bg-surface-2 p-6 ring-0 md:p-8">
             <SectionTitle>Como ler estes números</SectionTitle>
-            <div className="space-y-2 text-[13px] leading-relaxed text-ink-2">
+            <div className="max-w-[75ch] space-y-3 text-[14px] leading-relaxed text-ink-2">
               <p>
                 <b className="text-ink">Score</b> compara cada vídeo com a mediana das últimas publicações maduras da própria conta, em escala log₂, dividido pela dispersão típica da conta. 0 é o normal da conta; +1 é cerca de uma “oscilação típica” acima. Assim uma conta pequena e uma grande ficam na mesma régua.
               </p>

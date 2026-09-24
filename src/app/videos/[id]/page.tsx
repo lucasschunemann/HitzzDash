@@ -18,9 +18,9 @@ export default async function VideoPage({ params }: PageProps<"/videos/[id]">) {
   const data = await getVideoDetail(decodeURIComponent(id));
   if (!data) notFound();
   return (
-    <div className="mx-auto max-w-[860px] px-4 pb-16 pt-5 md:px-8 md:pt-8">
-      <Link href="/videos" className="mb-5 inline-flex items-center gap-1 rounded-lg px-1.5 py-1 text-[13px] font-medium text-ink-2 hover:bg-surface-2 hover:text-ink">
-        <ChevronLeft className="size-4" /> Vídeos
+    <div className="mx-auto max-w-[900px] px-5 pb-24 pt-6 md:px-10 md:pt-10">
+      <Link href="/videos" className="group mb-8 inline-flex items-center gap-1 rounded-[6px] py-1 pl-1 pr-2 text-[13.5px] text-ink-2 transition-colors hover:bg-hover hover:text-ink">
+        <ChevronLeft className="size-4 transition-transform group-hover:-translate-x-0.5" /> Vídeos
       </Link>
       <VideoDetail data={data} />
     </div>

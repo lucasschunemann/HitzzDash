@@ -41,7 +41,7 @@ export function VideoDetail({ data, compact, origin }: { data: VideoDetailData; 
       {flying && <FlyingThumb origin={origin ?? null} targetRef={heroRef} onDone={land} />}
       {/* Cabeçalho */}
       <div className={cn("flex gap-5", pad, compact ? "flex-row" : "flex-col sm:flex-row")}>
-        <div ref={heroRef} className={cn("relative shrink-0 overflow-hidden rounded-[14px] bg-surface-2 ring-1 ring-hairline", compact ? "h-[210px] w-[118px]" : "aspect-[9/16] w-full max-w-[240px]")} style={{ opacity: flying ? 0 : 1 }}>
+        <div ref={heroRef} className={cn("relative shrink-0 overflow-hidden rounded-[6px] bg-surface-2 ring-1 ring-hairline", compact ? "h-[210px] w-[118px]" : "aspect-[9/16] w-full max-w-[240px]")} style={{ opacity: flying ? 0 : 1 }}>
           {data.videoUrl && !compact ? (
             <video src={data.videoUrl} poster={row.thumb ?? undefined} controls playsInline className="size-full object-cover" />
           ) : row.thumb ? (
@@ -55,7 +55,7 @@ export function VideoDetail({ data, compact, origin }: { data: VideoDetailData; 
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5 text-[12.5px] text-ink-2">
-            <Link href={`/videos?account=${row.accountId}`} className="font-semibold text-ink hover:underline">
+            <Link href={`/videos?account=${row.accountId}`} className="font-semibold text-ink link-underline">
               @{row.handle}
             </Link>
             <span>·</span>
@@ -100,18 +100,18 @@ export function VideoDetail({ data, compact, origin }: { data: VideoDetailData; 
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             {row.url && (
-              <a href={row.url} target="_blank" rel="noreferrer" className="inline-flex h-7 items-center gap-1.5 rounded-[9px] bg-surface px-2.5 text-[12.5px] font-medium shadow-sm ring-1 ring-hairline hover:bg-surface-2">
+              <a href={row.url} target="_blank" rel="noreferrer" className="inline-flex h-7 items-center gap-1.5 rounded-[6px] bg-surface px-2.5 text-[13px] font-medium ring-1 ring-hairline-strong transition-[background-color,transform] hover:bg-hover active:scale-[0.97]">
                 <ExternalLink className="size-3.5" /> Instagram
               </a>
             )}
-            <Link href={`/scripts?new=1&hook=${row.hookType ?? ""}&theme=${row.theme ?? ""}`} className="inline-flex h-7 items-center gap-1.5 rounded-[9px] bg-accent-soft px-2.5 text-[12.5px] font-medium text-accent-ink hover:brightness-95">
+            <Link href={`/scripts?new=1&hook=${row.hookType ?? ""}&theme=${row.theme ?? ""}`} className="inline-flex h-7 items-center gap-1.5 rounded-[6px] bg-accent px-2.5 text-[13px] font-medium text-on-accent transition-[background-color,transform] hover:bg-accent-hover active:scale-[0.97]">
               <Sparkles className="size-3.5" /> Roteiro com este padrão
             </Link>
           </div>
         </div>
       </div>
 
-      <div className={cn("mt-7 space-y-7", pad)}>
+      <div className={cn("mt-10 space-y-10", pad)}>
         <Properties data={data} />
         <ScoreExplain data={data} />
         {a && <HookBlock data={data} />}
@@ -131,7 +131,7 @@ function Block({ title, icon, children, defaultOpen = true, aside }: { title: st
   return (
     <Collapsible.Root open={open} onOpenChange={setOpen}>
       <div className="mb-2 flex items-center gap-2">
-        <Collapsible.Trigger className="group -ml-1 flex items-center gap-1.5 rounded-md px-1 py-0.5 text-[13px] font-semibold text-ink hover:bg-surface-2">
+        <Collapsible.Trigger className="group -ml-1 flex items-center gap-1.5 rounded-[5px] px-1 py-0.5 text-[13px] font-semibold text-ink hover:bg-hover">
           <ChevronRight className={cn("size-3.5 text-ink-3 transition-transform duration-200", open && "rotate-90")} />
           {icon}
           {title}
@@ -145,7 +145,7 @@ function Block({ title, icon, children, defaultOpen = true, aside }: { title: st
 
 function Prop({ label, children, hint }: { label: string; children: ReactNode; hint?: string }) {
   return (
-    <div className="flex min-h-8 items-center gap-3 rounded-lg px-1 text-[13px] hover:bg-surface-2/60">
+    <div className="flex min-h-8 items-center gap-3 rounded-[6px] px-1 text-[13px] hover:bg-hover">
       <div className="w-36 shrink-0 text-ink-3" title={hint}>
         {label}
       </div>
@@ -177,7 +177,7 @@ function Properties({ data }: { data: VideoDetailData }) {
               value={row.hookManual ? (row.hookType ?? "") : row.hookType ?? ""}
               onChange={(e) => setHook(e.target.value)}
               disabled={saving}
-              className="-ml-1 h-7 max-w-full rounded-md bg-transparent px-1 text-[13px] font-medium text-ink hover:bg-surface-2 focus:bg-surface-2"
+              className="-ml-1 h-7 max-w-full rounded-[5px] bg-transparent px-1 text-[13px] font-medium text-ink hover:bg-hover focus:bg-surface-2"
               aria-label="Reclassificar tipo de hook"
             >
               {Object.entries(HOOK_TYPES).map(([k, v]) => (
@@ -250,7 +250,7 @@ function ScoreExplain({ data }: { data: VideoDetailData }) {
   return (
     <Block title="Como o score foi calculado" icon={<Brain className="size-3.5 text-ink-3" />} defaultOpen={false}>
       {ratio !== null && (
-        <div className="mb-4 rounded-xl bg-surface-2/60 p-3.5">
+        <div className="mb-4 rounded-[8px] bg-surface-2/60 p-3.5">
           <div className="relative h-8">
             <div className="absolute inset-x-0 top-3.5 h-1 rounded-full bg-gradient-to-r from-[var(--band-below)] via-[var(--band-normal)] to-[var(--band-breakout)] opacity-50" />
             <div className="absolute top-1.5 h-5 w-px bg-ink-3" style={{ left: `${pos(1) * 100}%` }} title="mediana da conta" />
@@ -299,7 +299,7 @@ function HookBlock({ data }: { data: VideoDetailData }) {
   const a = data.analysis!;
   return (
     <Block title="Hook (primeiros 3 segundos)" aside={<Pill tone={a.hook.strength === "strong" ? "good" : a.hook.strength === "weak" ? "warn" : "neutral"}>{a.hook.strength === "strong" ? "forte" : a.hook.strength === "weak" ? "fraco" : "ok"}</Pill>}>
-      <div className="space-y-2 rounded-xl bg-surface-2/60 p-3.5 text-[13px]">
+      <div className="space-y-2 rounded-[8px] bg-surface-2/60 p-3.5 text-[13px]">
         {a.hook.onScreenText && (
           <p>
             <span className="mr-2 text-ink-3">
@@ -329,7 +329,7 @@ function HookBlock({ data }: { data: VideoDetailData }) {
 }
 
 const ROLE_TINT: Record<string, string> = {
-  hook: "var(--accent)",
+  hook: "var(--band-breakout)",
   cta: "var(--band-below)",
   offer: "var(--band-above)",
   urgency: "var(--band-above)",
@@ -340,7 +340,7 @@ function BeatsTimeline({ data }: { data: VideoDetailData }) {
   const total = Math.max(data.row.durationSec ?? 0, ...a.beats.map((b) => b.end), 1);
   return (
     <Block title="Estrutura beat a beat" icon={<Clock className="size-3.5 text-ink-3" />}>
-      <div className="mb-3 flex h-7 w-full gap-[2px] overflow-hidden rounded-lg" role="img" aria-label={`Linha do tempo: ${a.beats.map((b) => BEAT_ROLES[b.role]).join(", ")}`}>
+      <div className="mb-3 flex h-7 w-full gap-[2px] overflow-hidden rounded-[6px]" role="img" aria-label={`Linha do tempo: ${a.beats.map((b) => BEAT_ROLES[b.role]).join(", ")}`}>
         {a.beats.map((b, i) => (
           <Tip key={i} content={`${BEAT_ROLES[b.role]} · ${b.start.toFixed(1)}–${b.end.toFixed(1)}s`}>
             <motion.div
@@ -350,7 +350,7 @@ function BeatsTimeline({ data }: { data: VideoDetailData }) {
               style={{ flexGrow: Math.max(0.2, b.end - b.start), transformOrigin: "left", background: ROLE_TINT[b.role] ?? "var(--surface-3)" }}
               className="flex min-w-0 items-center px-1.5 text-[10.5px] font-medium text-ink/90"
             >
-              <span className={cn("truncate", ROLE_TINT[b.role] && "text-white")}>{BEAT_ROLES[b.role]}</span>
+              <span className={cn("truncate", ROLE_TINT[b.role] && "text-[var(--on-tint)]")}>{BEAT_ROLES[b.role]}</span>
             </motion.div>
           </Tip>
         ))}
@@ -390,7 +390,7 @@ function Frames({ data }: { data: VideoDetailData }) {
         {data.frames.map((f) => (
           <figure key={f.url} className="shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={f.url} alt={`Frame em ${f.t.toFixed(1)}s`} loading="lazy" className="h-40 w-[90px] rounded-lg object-cover ring-1 ring-hairline" />
+            <img src={f.url} alt={`Frame em ${f.t.toFixed(1)}s`} loading="lazy" className="h-40 w-[90px] rounded-[6px] object-cover ring-1 ring-hairline" />
             <figcaption className="mt-1 text-center text-[11px] text-ink-3 tabular">{f.t.toFixed(1)}s</figcaption>
           </figure>
         ))}
@@ -520,7 +520,7 @@ function AnalysisBlocks({ data }: { data: VideoDetailData }) {
 
 function NoAnalysis({ data }: { data: VideoDetailData }) {
   return (
-    <div className="rounded-xl bg-surface-2/60 p-4 text-[13px] text-ink-2">
+    <div className="rounded-[8px] bg-surface-2/60 p-4 text-[13px] text-ink-2">
       Este vídeo ainda não foi analisado.{" "}
       {data.row.status.analysis === "external" ? (
         <>
@@ -551,7 +551,7 @@ function TranscriptBlock({ data }: { data: VideoDetailData }) {
             : t.text}
         </p>
       ) : (
-        <div className="rounded-xl bg-surface-2/60 p-3.5 text-[13px] text-ink-2">
+        <div className="rounded-[8px] bg-surface-2/60 p-3.5 text-[13px] text-ink-2">
           <p className="font-medium text-ink">{kind === "lyrics" ? "Só música (letra detectada, não é fala do criador)" : kind === "no_audio" ? "Vídeo sem áudio" : "Sem fala: só trilha/efeitos"}</p>
           <p className="mt-1">A análise usou legenda, texto na tela e a sequência de cenas no lugar da transcrição.</p>
           {kind === "lyrics" && t.text && <p className="mt-2 text-[12.5px] italic text-ink-3">“{t.text.slice(0, 240)}”</p>}
@@ -585,7 +585,7 @@ function PipelineStatus({ data }: { data: VideoDetailData }) {
           const st = row.status[s];
           return (
             <span key={s} className={cn("inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-[12px] ring-1 ring-hairline", st === "failed" && "text-bad", (st === "blocked" || st === "external") && "text-warn")}>
-              <span className={cn("size-1.5 rounded-full", st === "done" ? "bg-good" : st === "failed" ? "bg-bad" : st === "running" ? "animate-pulse bg-accent" : st === "blocked" || st === "external" ? "bg-warn" : "bg-ink-3")} />
+              <span className={cn("size-1.5 rounded-full", st === "done" ? "bg-good" : st === "failed" ? "bg-bad" : st === "running" ? "animate-pulse bg-[var(--band-below)]" : st === "blocked" || st === "external" ? "bg-warn" : "bg-ink-3")} />
               {STAGE_LABEL[s]}: {STATUS_LABEL[st] ?? st}
             </span>
           );
@@ -607,7 +607,7 @@ function PipelineStatus({ data }: { data: VideoDetailData }) {
             Reanalisar
           </Button>
           {data.videoUrl && (
-            <a href={data.videoUrl} download className="inline-flex h-7 items-center gap-1.5 rounded-[10px] px-2.5 text-[12.5px] font-medium text-ink-2 hover:bg-surface-2">
+            <a href={data.videoUrl} download className="inline-flex h-7 items-center gap-1.5 rounded-[6px] px-2.5 text-[12.5px] font-medium text-ink-2 hover:bg-hover">
               <Download className="size-3.5" /> Vídeo (temporário)
             </a>
           )}
@@ -624,7 +624,7 @@ function Similar({ data }: { data: VideoDetailData }) {
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
         {data.similar.map((s) => (
           <Link key={s.id} href={`/videos/${encodeURIComponent(s.id)}`} className="group">
-            <div className="aspect-[9/16] overflow-hidden rounded-lg bg-surface-2 ring-1 ring-hairline">
+            <div className="aspect-[9/16] overflow-hidden rounded-[6px] bg-surface-2 ring-1 ring-hairline">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {s.thumb && <img src={s.thumb} alt="" loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />}
             </div>
@@ -643,7 +643,7 @@ export function VideoDetailSkeleton() {
   return (
     <div className="space-y-6 p-5">
       <div className="flex gap-5">
-        <Skeleton className="h-[210px] w-[118px] rounded-[14px]" />
+        <Skeleton className="h-[210px] w-[118px] rounded-[10px]" />
         <div className="flex-1 space-y-3">
           <Skeleton className="h-3 w-40" />
           <Skeleton className="h-5 w-full" />

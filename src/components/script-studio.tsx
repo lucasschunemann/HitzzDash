@@ -117,19 +117,19 @@ export function ScriptStudio({
   const roots = list.filter((s) => !s.parentId || !list.some((p) => p.id === s.parentId));
 
   return (
-    <div className="grid gap-6 px-4 md:px-8 lg:grid-cols-[280px_1fr]">
+    <div className="grid gap-12 px-page lg:grid-cols-[232px_1fr] lg:gap-10 xl:grid-cols-[260px_1fr] xl:gap-14">
       {/* Histórico */}
-      <aside className="order-2 lg:order-1" aria-label="Histórico de roteiros">
-        <div className="mb-2 flex items-center justify-between">
+      <aside className="order-2 lg:sticky lg:top-20 lg:order-1 lg:self-start" aria-label="Histórico de roteiros">
+        <div className="mb-3 flex items-center justify-between">
           <Segmented label="Filtro do histórico" value={filter} onChange={setFilter} options={[{ value: "all", label: "Todos" }, { value: "fav", label: "Favoritos" }]} />
           <Button size="sm" variant="ghost" icon={<Plus className="size-3.5" />} onClick={() => setShowForm(true)}>
             Novo
           </Button>
         </div>
         {list.length === 0 ? (
-          <p className="rounded-xl p-4 text-[12.5px] text-ink-3 ring-1 ring-hairline">{filter === "fav" ? "Nenhum favorito ainda." : "Os roteiros gerados ficam salvos aqui."}</p>
+          <p className="rounded-[8px] bg-surface-2 p-4 text-[13px] text-ink-3">{filter === "fav" ? "Nenhum favorito ainda." : "Os roteiros gerados ficam salvos aqui."}</p>
         ) : (
-          <ul className="space-y-0.5">
+          <ul className="stagger space-y-px">
             {roots.map((s) => {
               const kids = list.filter((k) => k.parentId === s.id);
               return (
@@ -151,7 +151,7 @@ export function ScriptStudio({
         )}
       </aside>
 
-      <div className="order-1 min-w-0 space-y-6 lg:order-2">
+      <div className="order-1 min-w-0 space-y-10 lg:order-2">
         <AnimatePresence initial={false}>
           {(showForm || busy) && (
             <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={spring}>
@@ -177,12 +177,12 @@ export function ScriptStudio({
 
 function HistoryItem({ s, active, child }: { s: ScriptRow; active: boolean; child?: boolean }) {
   return (
-    <Link href={`/scripts?id=${s.id}`} className={cn("relative block rounded-[10px] px-2.5 py-2", active ? "bg-surface shadow-sm ring-1 ring-hairline" : "hover:bg-surface-2/70")}>
+    <Link href={`/scripts?id=${s.id}`} className={cn("relative block rounded-[6px] px-2.5 py-2 transition-colors", active ? "bg-active" : "hover:bg-hover")}>
       <div className="flex items-center gap-1.5">
-        {s.favorite && <Star className="size-3 shrink-0 fill-accent text-accent" />}
-        <span className={cn("truncate text-[13px]", active ? "font-semibold text-ink" : "text-ink")}>{s.title}</span>
+        {s.favorite && <Star className="size-3 shrink-0 fill-[var(--band-breakout)] text-[var(--band-breakout)]" />}
+        <span className={cn("truncate text-[14px]", active ? "font-medium text-ink" : "text-ink-2")}>{s.title}</span>
       </div>
-      <div className="text-[11.5px] text-ink-3">
+      <div className="mt-0.5 text-[12px] text-ink-3">
         {child ? "Variação · " : ""}
         {fmtAgo(s.createdAt)} · {s.generator === "ai" ? "IA" : s.generator === "claude-code" ? "Claude Code" : "sem IA"}
       </div>
@@ -199,37 +199,37 @@ function GeneratorForm({ initial, onSubmit, onCancel, aiEnabled, ccMode, canGene
   const [notes, setNotes] = useState("");
   const [seedTheme, setSeedTheme] = useState(initial.seedTheme);
   const [seedHook, setSeedHook] = useState(initial.seedHook);
-  const label = "mb-1.5 block text-[12px] font-semibold text-ink-2";
+  const label = "mb-2 block text-[13px] font-medium text-ink-2";
   const payload = () => ({ mode, category: mode === "category" ? category : undefined, theme: mode === "theme" ? theme : undefined, tone, notes, durationSec: duration === "auto" ? null : Number(duration), seedTheme, seedHook });
   return (
-    <Card className="p-5 md:p-6">
-      <div className="mb-4 flex items-start justify-between gap-3">
+    <Card className="p-6 md:p-8">
+      <div className="mb-6 flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Novo roteiro</h2>
-          <p className="text-[12.5px] text-ink-3">O gerador primeiro lê o dataset e escolhe tema, hook, ângulo e estrutura; só depois escreve.</p>
+          <h2 className="text-[20px] font-semibold tracking-[-0.015em]">Novo roteiro</h2>
+          <p className="mt-1 text-[13.5px] text-ink-3">O gerador primeiro lê o dataset e escolhe tema, hook, ângulo e estrutura; só depois escreve.</p>
         </div>
         {onCancel && (
-          <button onClick={onCancel} className="grid size-7 place-items-center rounded-lg text-ink-3 hover:bg-surface-2" aria-label="Fechar formulário">
+          <button onClick={onCancel} className="grid size-7 place-items-center rounded-[6px] text-ink-3 hover:bg-hover" aria-label="Fechar formulário">
             <X className="size-4" />
           </button>
         )}
       </div>
       {ccMode ? (
-        <div className="mb-4 flex gap-2 rounded-xl bg-accent-soft/60 p-3 text-[12.5px] text-ink ring-1 ring-accent/15">
-          <Terminal className="mt-0.5 size-4 shrink-0 text-accent-ink" />
+        <div className="mb-6 flex gap-3 rounded-[8px] bg-surface-2 p-4 text-[13.5px] leading-relaxed text-ink-2">
+          <Terminal className="mt-0.5 size-4 shrink-0 text-ink" />
           <span>
             Modo gratuito: o roteiro é escrito pelo <b>Claude Code</b>, com a sua assinatura do Claude, usando os mesmos dados e as mesmas validações. Faça o pedido aqui e depois, no Claude Code, diga <b>“{CC_PHRASE}”</b>. Para algo imediato, use o esqueleto rápido (sem IA).
           </span>
         </div>
       ) : (
         !aiEnabled && (
-          <div className="mb-4 flex gap-2 rounded-xl bg-warn/10 p-3 text-[12.5px] text-ink ring-1 ring-warn/20">
+          <div className="mb-6 flex gap-3 rounded-[8px] bg-warn/10 p-4 text-[13.5px] leading-relaxed text-ink">
             <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warn" />
             <span>Sem ANTHROPIC_API_KEY o gerador roda em modo heurístico: escolhe tema, hook e estrutura pelos números e monta um esqueleto de cenas, mas não escreve fala nem justificativa em texto livre.</span>
           </div>
         )
       )}
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div>
           <span className={label}>Como escolher o assunto</span>
           <Segmented
@@ -248,7 +248,7 @@ function GeneratorForm({ initial, onSubmit, onCancel, aiEnabled, ccMode, canGene
             {(Object.keys(SCRIPT_CATEGORIES) as ScriptCategory[])
               .filter((c) => c !== "auto")
               .map((c) => (
-                <button key={c} onClick={() => setCategory(c)} aria-pressed={category === c} className={cn("h-7.5 rounded-full px-3 text-[12.5px]", category === c ? "bg-accent-soft font-medium text-accent-ink" : "bg-surface-2 text-ink-2 hover:text-ink")}>
+                <button key={c} onClick={() => setCategory(c)} aria-pressed={category === c} className={cn("h-8 rounded-[6px] px-3 text-[13px] transition-[background-color,color,transform] duration-150 active:scale-95", category === c ? "bg-accent font-medium text-on-accent" : "bg-accent-soft text-ink-2 hover:bg-active hover:text-ink")}>
                   {SCRIPT_CATEGORIES[c]}
                 </button>
               ))}
@@ -259,7 +259,7 @@ function GeneratorForm({ initial, onSubmit, onCancel, aiEnabled, ccMode, canGene
             value={theme}
             onChange={(e) => setTheme(e.target.value)}
             placeholder="Ex.: lançamento da bota de inverno para quem trabalha em pé"
-            className="h-9 w-full rounded-[10px] bg-surface px-3 text-[13.5px] ring-1 ring-hairline outline-none placeholder:text-ink-3 focus:ring-2 focus:ring-[var(--focus)]"
+            className="h-9 w-full rounded-[6px] bg-surface px-3 text-[13.5px] ring-1 ring-hairline outline-none placeholder:text-ink-3 focus:ring-2 focus:ring-[var(--focus)]"
             aria-label="Tema livre"
           />
         )}
@@ -281,7 +281,7 @@ function GeneratorForm({ initial, onSubmit, onCancel, aiEnabled, ccMode, canGene
         <div className="grid gap-4 sm:grid-cols-2">
           <label>
             <span className={label}>Tom</span>
-            <select value={tone} onChange={(e) => setTone(e.target.value as Tone)} className="h-9 w-full rounded-[10px] bg-surface px-2.5 text-[13px] ring-1 ring-hairline">
+            <select value={tone} onChange={(e) => setTone(e.target.value as Tone)} className="h-9 w-full rounded-[6px] bg-surface px-2.5 text-[13px] ring-1 ring-hairline">
               {Object.entries(TONES).map(([k, v]) => (
                 <option key={k} value={k}>
                   {v}
@@ -291,7 +291,7 @@ function GeneratorForm({ initial, onSubmit, onCancel, aiEnabled, ccMode, canGene
           </label>
           <label>
             <span className={label}>Duração</span>
-            <select value={duration} onChange={(e) => setDuration(e.target.value)} className="h-9 w-full rounded-[10px] bg-surface px-2.5 text-[13px] ring-1 ring-hairline">
+            <select value={duration} onChange={(e) => setDuration(e.target.value)} className="h-9 w-full rounded-[6px] bg-surface px-2.5 text-[13px] ring-1 ring-hairline">
               <option value="auto">Recomendada pelos dados</option>
               {[10, 15, 20, 30, 45, 60].map((d) => (
                 <option key={d} value={d}>
@@ -308,7 +308,7 @@ function GeneratorForm({ initial, onSubmit, onCancel, aiEnabled, ccMode, canGene
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
             placeholder="Ex.: Tênis Nuvem, R$ 249 em até 6x, frete grátis até domingo. Sem isso, o roteiro usa marcadores como [PREÇO]."
-            className="w-full resize-y rounded-[10px] bg-surface px-3 py-2 text-[13px] ring-1 ring-hairline outline-none placeholder:text-ink-3 focus:ring-2 focus:ring-[var(--focus)]"
+            className="w-full resize-y rounded-[6px] bg-surface px-3 py-2 text-[13px] ring-1 ring-hairline outline-none placeholder:text-ink-3 focus:ring-2 focus:ring-[var(--focus)]"
           />
         </label>
         <div className="flex items-center gap-3">
@@ -343,7 +343,7 @@ function Progress({ job, aiEnabled }: { job: Job; aiEnabled: boolean }) {
           const state = job.status === "queued" ? "wait" : i < idx ? "done" : i === idx ? "now" : "wait";
           return (
             <li key={s} className="flex items-center gap-2.5 text-[13px]">
-              <span className={cn("grid size-5 place-items-center rounded-full", state === "done" ? "bg-good text-white" : state === "now" ? "bg-accent-soft text-accent" : "bg-surface-2 text-ink-3")}>
+              <span className={cn("grid size-5 place-items-center rounded-full", state === "done" ? "bg-good text-[var(--on-tint)]" : state === "now" ? "bg-accent-soft text-accent" : "bg-surface-2 text-ink-3")}>
                 {state === "done" ? <Check className="size-3" /> : state === "now" ? <span className="size-1.5 animate-pulse rounded-full bg-accent" /> : <span className="text-[10px]">{i + 1}</span>}
               </span>
               <span className={state === "wait" ? "text-ink-3" : "text-ink"}>{s}</span>
@@ -432,23 +432,29 @@ function ScriptView({ s, rows, family, onVariant, aiEnabled }: { s: ScriptRow; r
           {ev?.basedOn.demo ? <Pill tone="warn">baseado em dados de demonstração</Pill> : null}
         </div>
         <div className="mt-1.5 flex items-start gap-2">
-          <input
+          <textarea
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            rows={1}
+            onChange={(e) => setTitle(e.target.value.replace(/\n/g, " "))}
             onBlur={() => title !== s.title && patch({ title })}
-            onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                (e.target as HTMLTextAreaElement).blur();
+              }
+            }}
             aria-label="Título do roteiro"
-            className="-ml-1.5 min-w-0 flex-1 rounded-lg bg-transparent px-1.5 text-[24px] font-bold tracking-[-0.02em] text-ink outline-none hover:bg-surface-2/60 focus:bg-surface-2/60"
+            className="-ml-1.5 min-w-0 flex-1 resize-none rounded-[6px] bg-transparent px-1.5 [field-sizing:content] text-[28px] font-bold leading-tight tracking-[-0.025em] text-ink outline-none transition-colors hover:bg-hover focus:bg-hover md:text-[34px]"
           />
           <Tip content={s.favorite ? "Remover dos favoritos" : "Favoritar"}>
-            <button onClick={() => patch({ favorite: !s.favorite })} className="mt-1 grid size-9 place-items-center rounded-xl hover:bg-surface-2" aria-label={s.favorite ? "Remover dos favoritos" : "Favoritar"} aria-pressed={s.favorite}>
+            <button onClick={() => patch({ favorite: !s.favorite })} className="mt-1.5 grid size-9 place-items-center rounded-[6px] transition-colors hover:bg-hover" aria-label={s.favorite ? "Remover dos favoritos" : "Favoritar"} aria-pressed={s.favorite}>
               <motion.span key={String(s.favorite)} initial={{ scale: 0.6 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500, damping: 15 }}>
-                <Star className={cn("size-5", s.favorite ? "fill-accent text-accent" : "text-ink-3")} />
+                <Star className={cn("size-5", s.favorite ? "fill-[var(--band-breakout)] text-[var(--band-breakout)]" : "text-ink-3")} />
               </motion.span>
             </button>
           </Tip>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-5 flex flex-wrap gap-1.5">
           <Button size="sm" icon={<RotateCw className="size-3.5" />} onClick={() => onVariant({ kind: "regenerate" })}>
             Regenerar
           </Button>
@@ -462,10 +468,10 @@ function ScriptView({ s, rows, family, onVariant, aiEnabled }: { s: ScriptRow; r
               </Button>
             </Popover.Trigger>
             <Popover.Portal>
-              <Popover.Content sideOffset={6} align="start" className="glass-strong z-50 w-56 rounded-xl p-1 shadow-lg ring-1 ring-hairline">
+              <Popover.Content sideOffset={6} align="start" className="menu-surface z-50 w-56 rounded-[8px] p-1">
                 {Object.entries(TONES).map(([k, v]) => (
                   <Popover.Close key={k} asChild>
-                    <button disabled={k === s.input.tone} onClick={() => onVariant({ kind: "tone", tone: k })} className="flex h-8 w-full items-center rounded-lg px-2.5 text-left text-[13px] hover:bg-surface-2 disabled:text-ink-3">
+                    <button disabled={k === s.input.tone} onClick={() => onVariant({ kind: "tone", tone: k })} className="flex h-8 w-full items-center rounded-[6px] px-2.5 text-left text-[13px] hover:bg-hover disabled:text-ink-3">
                       {v} {k === s.input.tone && <span className="ml-auto text-[11px]">atual</span>}
                     </button>
                   </Popover.Close>
@@ -492,10 +498,10 @@ function ScriptView({ s, rows, family, onVariant, aiEnabled }: { s: ScriptRow; r
 
       {/* Hook e resumo */}
       <Card className="overflow-hidden">
-        <div className="grid gap-0 md:grid-cols-[1.4fr_1fr]">
-          <div className="p-5">
-            <div className="text-[11.5px] font-semibold uppercase tracking-[0.05em] text-accent-ink">Hook (0–3 s)</div>
-            <p className="mt-1.5 text-[22px] font-semibold leading-tight tracking-[-0.02em] text-ink">“{o.onScreenHook}”</p>
+        <div className="grid gap-0 xl:grid-cols-[1.4fr_1fr]">
+          <div className="p-6 md:p-8">
+            <div className="text-[13px] font-medium text-ink-3">Hook (0–3 s)</div>
+            <p className="mt-2 text-[24px] font-bold leading-tight tracking-[-0.02em] text-ink">“{o.onScreenHook}”</p>
             {o.spokenHook && (
               <p className="mt-2 flex items-start gap-1.5 text-[14px] text-ink-2">
                 <Mic className="mt-0.5 size-4 shrink-0 text-ink-3" />“{o.spokenHook}”
@@ -512,7 +518,7 @@ function ScriptView({ s, rows, family, onVariant, aiEnabled }: { s: ScriptRow; r
               </div>
             )}
           </div>
-          <div className="space-y-2.5 border-t border-hairline bg-surface-2/40 p-5 text-[13px] md:border-l md:border-t-0">
+          <div className="space-y-3.5 border-t border-hairline bg-surface-2/60 p-6 text-[13.5px] md:p-8 xl:border-l xl:border-t-0">
             <Fact icon={<Clock className="size-3.5" />} label="Duração">
               ~{Math.round(o.totalDurationSec)} s · {o.scenes.length} cenas
             </Fact>
@@ -537,15 +543,15 @@ function ScriptView({ s, rows, family, onVariant, aiEnabled }: { s: ScriptRow; r
         <SectionTitle hint="Proporção de tempo por cena">Roteiro cena a cena</SectionTitle>
         <div className="mb-3 flex h-2.5 gap-[2px] overflow-hidden rounded-full">
           {o.scenes.map((c, i) => (
-            <motion.span key={i} initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: i * 0.05, ...spring }} style={{ flexGrow: c.durationSec, transformOrigin: "left", background: c.role === "hook" ? "var(--accent)" : c.role === "cta" ? "var(--band-below)" : "var(--surface-3)" }} title={`${BEAT_ROLES[c.role]} · ${c.durationSec}s`} />
+            <motion.span key={i} initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: i * 0.05, ...spring }} style={{ flexGrow: c.durationSec, transformOrigin: "left", background: c.role === "hook" ? "var(--band-breakout)" : c.role === "cta" ? "var(--band-below)" : "var(--surface-3)" }} title={`${BEAT_ROLES[c.role]} · ${c.durationSec}s`} />
           ))}
         </div>
-        <ol className="space-y-2.5">
+        <ol className="space-y-3">
           {o.scenes.map((c, i) => {
             const start = o.scenes.slice(0, i).reduce((a, x) => a + x.durationSec, 0);
             return (
               <motion.li key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                <Card className="grid gap-3 p-4 sm:grid-cols-[88px_1fr]">
+                <Card interactive className="grid gap-4 p-5 sm:grid-cols-[88px_1fr]">
                   <div>
                     <div className="text-[20px] font-semibold text-ink tabular">{i + 1}</div>
                     <div className="text-[11.5px] text-ink-3 tabular">
@@ -570,9 +576,9 @@ function ScriptView({ s, rows, family, onVariant, aiEnabled }: { s: ScriptRow; r
       {/* Legenda */}
       <section>
         <SectionTitle action={<CopyButton text={`${o.caption}\n\n${o.hashtags.map((h) => `#${h.replace(/^#/, "")}`).join(" ")}`} label="Copiar legenda" />}>Legenda pronta</SectionTitle>
-        <Card className="p-4">
-          <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-ink">{o.caption}</p>
-          <p className="mt-3 text-[13px] text-accent-ink">{o.hashtags.map((h) => `#${h.replace(/^#/, "")}`).join(" ")}</p>
+        <Card className="p-6">
+          <p className="whitespace-pre-wrap text-[14.5px] leading-[1.7] text-ink">{o.caption}</p>
+          <p className="mt-4 text-[13.5px] text-[var(--band-below)]">{o.hashtags.map((h) => `#${h.replace(/^#/, "")}`).join(" ")}</p>
         </Card>
         {o.productionNotes.length > 0 && (
           <ul className="mt-3 space-y-0.5 text-[12.5px] text-ink-2">
@@ -587,15 +593,15 @@ function ScriptView({ s, rows, family, onVariant, aiEnabled }: { s: ScriptRow; r
       {p && (
         <section>
           <SectionTitle hint="Cada decisão com os números e os vídeos (do banco) que a sustentam">Por que este roteiro</SectionTitle>
-          <Card className="space-y-5 p-5">
-            <p className="text-[14px] leading-relaxed text-ink">{p.datasetReading}</p>
-            <div className="space-y-4">
+          <Card className="space-y-8 p-6 md:p-8">
+            <p className="max-w-[75ch] text-[15px] leading-[1.7] text-ink">{p.datasetReading}</p>
+            <div className="space-y-6">
               {(["tema", "hook", "ângulo", "formato", "estrutura", "oferta", "cta", "duração", "áudio"] as const).map((d) => {
                 const x = byDecision(d);
                 if (!x) return null;
                 return (
-                  <div key={d} className="grid gap-1 sm:grid-cols-[110px_1fr]">
-                    <div className="text-[12px] font-semibold uppercase tracking-[0.04em] text-ink-3">{d}</div>
+                  <div key={d} className="grid gap-1 sm:grid-cols-[120px_1fr]">
+                    <div className="text-[13px] capitalize text-ink-3">{d}</div>
                     <div>
                       <div className="text-[13.5px] font-medium text-ink">{x.choice}</div>
                       <p className="text-[13px] text-ink-2">{x.why}</p>
@@ -612,7 +618,7 @@ function ScriptView({ s, rows, family, onVariant, aiEnabled }: { s: ScriptRow; r
             </div>
             {p.opportunities.length > 0 && (
               <div>
-                <div className="mb-1.5 text-[12px] font-semibold uppercase tracking-[0.04em] text-ink-3">Oportunidades consideradas</div>
+                <div className="mb-2 text-[13px] font-medium text-ink-3">Oportunidades consideradas</div>
                 <ul className="space-y-1.5 text-[13px]">
                   {p.opportunities.map((op, i) => (
                     <li key={i}>
@@ -622,9 +628,9 @@ function ScriptView({ s, rows, family, onVariant, aiEnabled }: { s: ScriptRow; r
                 </ul>
               </div>
             )}
-            <div className="rounded-xl bg-surface-2/60 p-4">
-              <div className="flex items-center gap-2">
-                <span className="text-[13px] font-semibold">Expectativa de desempenho</span>
+            <div className="rounded-[8px] bg-surface-2 p-5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[14px] font-semibold">Expectativa de desempenho</span>
                 <Pill tone={p.expected.confidence === "alta" ? "good" : p.expected.confidence === "média" ? "neutral" : "warn"}>confiança {p.expected.confidence}</Pill>
               </div>
               <p className="mt-1 text-[13px] text-ink-2">{p.expected.rationale}</p>
@@ -679,7 +685,7 @@ function ScriptView({ s, rows, family, onVariant, aiEnabled }: { s: ScriptRow; r
           <SectionTitle>Outras versões</SectionTitle>
           <div className="flex flex-wrap gap-2">
             {family.map((f) => (
-              <Link key={f.id} href={`/scripts?id=${f.id}`} className="rounded-xl bg-surface px-3 py-2 text-[12.5px] shadow-sm ring-1 ring-hairline hover:bg-surface-2">
+              <Link key={f.id} href={`/scripts?id=${f.id}`} className="block-hover rounded-[8px] bg-surface px-3.5 py-2.5 text-[13px] ring-1 ring-hairline">
                 <div className="font-medium text-ink">{f.title}</div>
                 <div className="text-ink-3">
                   {fmtAgo(f.createdAt)} · tom {TONES[f.input.tone].toLowerCase()}
@@ -708,7 +714,7 @@ function Fact({ icon, label, children }: { icon: ReactNode; label: string; child
 function Cell({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>
-      <div className="mb-0.5 text-[11px] font-medium uppercase tracking-[0.04em] text-ink-3">{label}</div>
+      <div className="mb-1 text-[12px] text-ink-3">{label}</div>
       <div className="text-ink-2">{children}</div>
     </div>
   );
@@ -724,9 +730,9 @@ function describe(r: ScriptRequestRow) {
 function PendingRequests({ requests }: { requests: ScriptRequestRow[] }) {
   const router = useRouter();
   return (
-    <Card className="p-4">
-      <div className="mb-2 flex flex-wrap items-center gap-2">
-        <Terminal className="size-4 text-accent-ink" />
+    <Card className="p-5">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <Terminal className="size-4 text-ink" />
         <span className="text-[13.5px] font-semibold">Aguardando o Claude Code ({requests.length})</span>
         <span className="ml-auto flex items-center gap-2 text-[12px] text-ink-3">
           No Claude Code, diga “{CC_PHRASE}”
@@ -736,7 +742,7 @@ function PendingRequests({ requests }: { requests: ScriptRequestRow[] }) {
       <ul className="divide-y divide-hairline">
         {requests.map((r) => (
           <li key={r.id} className="flex items-center gap-3 py-2 text-[13px]">
-            <span className="size-1.5 animate-pulse rounded-full bg-accent" />
+            <span className="size-1.5 animate-pulse rounded-full bg-[var(--band-below)]" />
             <span className="min-w-0 flex-1 truncate text-ink-2">
               #{r.id} · {describe(r)}
               {r.input.notes ? ` · ${r.input.notes}` : ""}

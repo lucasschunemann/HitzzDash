@@ -5,14 +5,16 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { RefreshCw, PenLine, UserPlus, Film, AtSign, ArrowRight, Sparkles } from "lucide-react";
+import { RefreshCw, PenLine, UserPlus, Film, AtSign, ArrowRight, Sparkles, Sun, Moon, Monitor, CornerDownLeft } from "lucide-react";
 import { NAV } from "./nav";
 import { hookLabel } from "@/lib/taxonomy";
+import { useTheme } from "./theme";
 
 type SearchResult = { videos: { id: string; handle: string; title: string; hookType: string | null }[]; accounts: { id: number; handle: string }[] };
 
 export function CommandMenu({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
   const router = useRouter();
+  const { setPref } = useTheme();
   const [q, setQ] = useState("");
   const [res, setRes] = useState<SearchResult>({ videos: [], accounts: [] });
 
@@ -40,14 +42,18 @@ export function CommandMenu({ open, onOpenChange }: { open: boolean; onOpenChang
     else toast.error(j.error ?? "Não foi possível iniciar a coleta");
   };
 
-  const item = "flex h-9 cursor-pointer items-center gap-2.5 rounded-[9px] px-2.5 text-[13px] text-ink aria-selected:bg-accent-soft aria-selected:text-accent-ink";
-  const group = "[&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:text-ink-3";
+  const item = "group flex h-9 cursor-pointer items-center gap-2.5 rounded-[6px] px-2.5 text-[14px] text-ink transition-colors aria-selected:bg-hover [&>svg:first-child]:text-ink-3";
+  const group = "[&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:text-[12px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-ink-3";
+  const theme = (t: "light" | "dark" | "system") => {
+    onOpenChange(false);
+    setPref(t);
+  };
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[90] bg-black/20 backdrop-blur-[2px] data-[state=open]:animate-in" />
-        <Dialog.Content className="glass-strong fixed left-1/2 top-[14vh] z-[91] w-[min(620px,calc(100vw-24px))] -translate-x-1/2 overflow-hidden rounded-2xl shadow-lg ring-1 ring-hairline" aria-describedby={undefined}>
+        <Dialog.Overlay className="overlay-in fixed inset-0 z-[90] bg-[var(--overlay)]" />
+        <Dialog.Content className="dialog-in fixed left-1/2 top-[12vh] z-[91] w-[min(640px,calc(100vw-24px))] -translate-x-1/2 overflow-hidden rounded-[8px] bg-[var(--menu)] shadow-[var(--shadow-lg)]" aria-describedby={undefined}>
           <Dialog.Title className="sr-only">Menu de comandos</Dialog.Title>
           <Command shouldFilter={false} loop>
             <Command.Input
@@ -55,10 +61,10 @@ export function CommandMenu({ open, onOpenChange }: { open: boolean; onOpenChang
               onValueChange={setQ}
               autoFocus
               placeholder="Buscar vídeos, contas ou ações…"
-              className="h-12 w-full border-b border-hairline bg-transparent px-4 text-[15px] text-ink outline-none placeholder:text-ink-3"
+              className="h-13 w-full border-b border-hairline bg-transparent px-4 text-[16px] text-ink outline-none placeholder:text-ink-3"
             />
-            <Command.List className="scrollbar-thin max-h-[52vh] overflow-auto p-1.5">
-              <Command.Empty className="py-8 text-center text-[13px] text-ink-3">Nada encontrado.</Command.Empty>
+            <Command.List className="scrollbar-thin max-h-[56vh] overflow-auto p-1.5">
+              <Command.Empty className="py-10 text-center text-[13.5px] text-ink-3">Nada encontrado.</Command.Empty>
               {!q && (
                 <Command.Group heading="Ações" className={group}>
                   <Command.Item className={item} onSelect={refreshAll}>
@@ -84,12 +90,25 @@ export function CommandMenu({ open, onOpenChange }: { open: boolean; onOpenChang
                   ))}
                 </Command.Group>
               )}
+              {!q && (
+                <Command.Group heading="Aparência" className={group}>
+                  <Command.Item className={item} onSelect={() => theme("light")}>
+                    <Sun className="size-4" /> Tema claro
+                  </Command.Item>
+                  <Command.Item className={item} onSelect={() => theme("dark")}>
+                    <Moon className="size-4" /> Tema escuro
+                  </Command.Item>
+                  <Command.Item className={item} onSelect={() => theme("system")}>
+                    <Monitor className="size-4" /> Seguir o sistema
+                  </Command.Item>
+                </Command.Group>
+              )}
               {res.accounts.length > 0 && (
                 <Command.Group heading="Contas" className={group}>
                   {res.accounts.map((a) => (
                     <Command.Item key={a.id} className={item} value={`acc-${a.id}`} onSelect={() => go(`/videos?account=${a.id}`)}>
                       <AtSign className="size-4 text-ink-3" /> {a.handle}
-                      <ArrowRight className="ml-auto size-3.5 text-ink-3" />
+                      <ArrowRight className="ml-auto size-3.5 text-ink-3 opacity-0 transition-all group-aria-selected:translate-x-0.5 group-aria-selected:opacity-100" />
                     </Command.Item>
                   ))}
                 </Command.Group>
@@ -109,6 +128,11 @@ export function CommandMenu({ open, onOpenChange }: { open: boolean; onOpenChang
                 </Command.Group>
               )}
             </Command.List>
+            <div className="hidden items-center gap-4 border-t border-hairline px-4 py-2 text-[12px] text-ink-3 sm:flex">
+              <span className="inline-flex items-center gap-1.5"><span className="rounded-[4px] bg-accent-soft px-1">↑↓</span> navegar</span>
+              <span className="inline-flex items-center gap-1.5"><CornerDownLeft className="size-3" /> abrir</span>
+              <span className="inline-flex items-center gap-1.5"><span className="rounded-[4px] bg-accent-soft px-1">esc</span> fechar</span>
+            </div>
           </Command>
         </Dialog.Content>
       </Dialog.Portal>

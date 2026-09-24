@@ -5,6 +5,7 @@ import { RotateCw, Trash2, Database } from "lucide-react";
 import { PageHeader } from "@/components/shell";
 import { SectionTitle, Card } from "@/components/ui";
 import { ApiButton } from "@/components/actions";
+import { ThemePicker } from "@/components/theme";
 import { IntegrationList, SettingsForm, QueuePanel, type Integration } from "@/components/settings-panels";
 import { AddAccountForm, AccountTable } from "@/components/account-manager";
 import { ENV_VARS, hasKey, anthropicModel, transcriberMode, analyzerMode } from "@/server/env";
@@ -54,13 +55,18 @@ export default async function SettingsPage() {
   const stats = await accountStats();
   const demo = (await loadVideos()).rows.filter((r) => r.isDemo).length;
   return (
-    <div className="mx-auto max-w-[980px] pb-20">
+    <div className="mx-auto max-w-[1040px] pb-24">
       <PageHeader title="Configurações" subtitle="Integrações, contas, agendamento e fila de processamento. As chaves ficam só no arquivo .env e nunca aparecem aqui." />
-      <div className="space-y-9 px-4 md:px-8">
+      <div className="space-y-16 px-page">
+        <section>
+          <SectionTitle hint="Claro, escuro ou seguindo o sistema. A escolha fica salva neste navegador.">Aparência</SectionTitle>
+          <ThemePicker />
+        </section>
+
         <section>
           <SectionTitle hint="Edite o .env na raiz do projeto e reinicie o app para aplicar">Integrações</SectionTitle>
           <IntegrationList items={isVercel() ? cloud : integrations} />
-          <p className="mt-2 text-[12px] text-ink-3">
+          <p className="mt-4 max-w-[80ch] text-[12.5px] leading-relaxed text-ink-3">
             Opcional: com <code className="font-mono">ELEVENLABS_API_KEY</code> a transcrição passa a usar o Scribe; com <code className="font-mono">ANTHROPIC_API_KEY</code> a análise e os roteiros viram automáticos pela API. Para forçar um modo, use <code className="font-mono">TRANSCRIBER=local|elevenlabs</code> e <code className="font-mono">ANALYZER=claude_code|api</code>.
           </p>
         </section>
@@ -72,7 +78,7 @@ export default async function SettingsPage() {
 
         <section id="contas">
           <SectionTitle hint="Adicione ou remova quando quiser. Grupo: concorrente direto, referência ou conta própria.">Contas monitoradas</SectionTitle>
-          <div className="mb-3">
+          <div className="mb-5">
             <Suspense>
               <AddAccountForm />
             </Suspense>
@@ -80,7 +86,7 @@ export default async function SettingsPage() {
           <AccountTable accounts={stats} />
         </section>
 
-        <section>
+        <section id="fila" className="scroll-mt-20">
           <SectionTitle
             hint="Coletas, processamento de cada vídeo (mídia → transcrição → frames → análise) e roteiros. Falhas temporárias são repetidas com espera crescente."
             action={
@@ -96,7 +102,7 @@ export default async function SettingsPage() {
 
         <section>
           <SectionTitle hint="Vídeos sintéticos para o dashboard funcionar antes da primeira coleta. A primeira coleta real de cada conta já apaga os demos dela.">Dados de demonstração</SectionTitle>
-          <Card className="flex flex-wrap items-center gap-3 p-4">
+          <Card className="flex flex-wrap items-center gap-3 p-5">
             <Database className="size-4 text-ink-3" />
             <span className="flex-1 text-[13px] text-ink-2">{demo ? `${demo} vídeos de demonstração no banco.` : "Nenhum vídeo de demonstração no banco."}</span>
             {demo > 0 ? (

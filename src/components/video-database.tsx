@@ -153,19 +153,18 @@ export function VideoDatabase({ rows, accounts, initial, now }: { rows: ClientVi
   return (
     <div>
       {/* Barra de ferramentas */}
-      <div className="glass sticky top-12 z-20 -mx-4 border-b border-hairline px-4 py-2.5 md:top-0 md:-mx-8 md:px-8">
-        <div className="flex flex-wrap items-center gap-2">
-          <Segmented
-            label="Visão"
+      <div className="glass sticky top-12 z-20 bleed-page px-page border-b border-hairline py-2.5">
+        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
+          <ViewTabs
             value={view}
             onChange={setView}
             options={[
-              { value: "table", label: <span className="hidden sm:inline">Tabela</span>, icon: <Table2 className="size-3.5" /> },
-              { value: "gallery", label: <span className="hidden sm:inline">Galeria</span>, icon: <LayoutGrid className="size-3.5" /> },
-              { value: "board", label: <span className="hidden sm:inline">Board</span>, icon: <Columns3 className="size-3.5" /> },
+              { value: "table", label: "Tabela", icon: <Table2 className="size-4" /> },
+              { value: "gallery", label: "Galeria", icon: <LayoutGrid className="size-4" /> },
+              { value: "board", label: "Board", icon: <Columns3 className="size-4" /> },
             ]}
           />
-          <div className="relative min-w-40 flex-1 sm:max-w-72">
+          <div className="relative order-last w-full sm:order-none sm:ml-auto sm:w-60 lg:w-72">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-ink-3" />
             <input
               ref={searchRef}
@@ -173,9 +172,9 @@ export function VideoDatabase({ rows, accounts, initial, now }: { rows: ClientVi
               onChange={(e) => setF({ ...f, q: e.target.value })}
               placeholder="Buscar hook, legenda, conta…"
               aria-label="Buscar vídeos"
-              className="h-8 w-full rounded-[10px] bg-surface pl-8 pr-8 text-[13px] text-ink shadow-sm ring-1 ring-hairline outline-none placeholder:text-ink-3 focus:ring-2 focus:ring-[var(--focus)]"
+              className="h-8 w-full rounded-[6px] bg-accent-soft pl-8 pr-8 text-[13.5px] text-ink outline-none transition-[background-color,box-shadow] placeholder:text-ink-3 focus:bg-surface focus:ring-2 focus:ring-[var(--focus)]"
             />
-            <span className="absolute right-2 top-1/2 -translate-y-1/2">
+            <span className="absolute right-2 top-1/2 hidden -translate-y-1/2 sm:block">
               <Kbd>/</Kbd>
             </span>
           </div>
@@ -194,8 +193,8 @@ export function VideoDatabase({ rows, accounts, initial, now }: { rows: ClientVi
               </MenuItem>
             ))}
           </MenuPopover>
-          <span className="ml-auto text-[12px] text-ink-3 tabular">
-            {filtered.length} de {rows.length} vídeos
+          <span className="ml-auto text-[12.5px] text-ink-3 tabular sm:ml-1">
+            {filtered.length} de {rows.length}
           </span>
         </div>
         <AnimatePresence initial={false}>
@@ -203,12 +202,12 @@ export function VideoDatabase({ rows, accounts, initial, now }: { rows: ClientVi
             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
               <div className="flex flex-wrap items-center gap-1.5 pt-2">
                 {chips.map((c) => (
-                  <button key={c.label} onClick={c.clear} className="inline-flex h-6 items-center gap-1 rounded-full bg-accent-soft pl-2.5 pr-1.5 text-[12px] font-medium text-accent-ink hover:brightness-95" aria-label={`Remover filtro ${c.label}`}>
+                  <button key={c.label} onClick={c.clear} className="group inline-flex h-7 items-center gap-1 rounded-full bg-surface pl-3 pr-2 text-[12.5px] font-medium text-ink ring-1 ring-hairline-strong transition-[background-color,transform] hover:bg-hover active:scale-95" aria-label={`Remover filtro ${c.label}`}>
                     {c.label}
-                    <X className="size-3" />
+                    <X className="size-3 text-ink-3 transition-transform group-hover:rotate-90 group-hover:text-ink" />
                   </button>
                 ))}
-                <button onClick={() => setF({ ...EMPTY, q: f.q })} className="text-[12px] text-ink-3 hover:text-ink">
+                <button onClick={() => setF({ ...EMPTY, q: f.q })} className="ml-1 text-[12.5px] text-ink-3 transition-colors hover:text-ink">
                   Limpar filtros
                 </button>
               </div>
@@ -217,7 +216,7 @@ export function VideoDatabase({ rows, accounts, initial, now }: { rows: ClientVi
         </AnimatePresence>
       </div>
 
-      <div className="pt-4">
+      <div className="pt-6">
         {filtered.length === 0 ? (
           <EmptyState icon={<Film className="size-5" />} title="Nenhum vídeo com esses filtros">
             Tente remover algum filtro ou buscar outro termo.
@@ -225,7 +224,7 @@ export function VideoDatabase({ rows, accounts, initial, now }: { rows: ClientVi
         ) : view === "board" ? (
           <Board rows={filtered} groupBy={groupBy === "none" ? "band" : groupBy} ids={ids} />
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-10">
             {groups.map((g) => (
               <GroupSection key={g.key} label={g.label} count={g.items.length} grouped={groupBy !== "none"}>
                 {view === "table" ? <Table rows={g.items} ids={ids} now={now} /> : <Gallery rows={g.items} ids={ids} />}
@@ -238,13 +237,36 @@ export function VideoDatabase({ rows, accounts, initial, now }: { rows: ClientVi
   );
 }
 
+function ViewTabs<T extends string>({ value, onChange, options }: { value: T; onChange: (v: T) => void; options: { value: T; label: string; icon: ReactNode }[] }) {
+  return (
+    <div role="tablist" aria-label="Visão" className="flex items-center gap-0.5">
+      {options.map((o) => {
+        const on = o.value === value;
+        return (
+          <button
+            key={o.value}
+            role="tab"
+            aria-selected={on}
+            onClick={() => onChange(o.value)}
+            className={cn("relative inline-flex h-8 items-center gap-1.5 rounded-[6px] px-2 text-[14px] transition-colors hover:bg-hover", on ? "font-medium text-ink max-sm:bg-active" : "text-ink-3 hover:text-ink-2")}
+          >
+            {o.icon}
+            <span className="hidden sm:inline">{o.label}</span>
+            {on && <motion.span layoutId="view-tab" transition={spring} className="absolute inset-x-1.5 -bottom-[11px] hidden h-[2px] rounded-full bg-ink sm:block" />}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function GroupSection({ label, count, grouped, children }: { label: string; count: number; grouped: boolean; children: ReactNode }) {
   const [open, setOpen] = useState(true);
   if (!grouped) return <>{children}</>;
   return (
     <section>
-      <button onClick={() => setOpen(!open)} className="mb-2 flex items-center gap-1.5 rounded-md px-1 py-0.5 text-[13px] font-semibold text-ink hover:bg-surface-2" aria-expanded={open}>
-        <ChevronRight className={cn("size-3.5 text-ink-3 transition-transform", open && "rotate-90")} />
+      <button onClick={() => setOpen(!open)} className="mb-3 flex items-center gap-1.5 rounded-[5px] px-1.5 py-1 text-[14px] font-semibold text-ink transition-colors hover:bg-hover" aria-expanded={open}>
+        <ChevronRight className={cn("size-3.5 text-ink-3 transition-transform duration-200", open && "rotate-90")} />
         {label}
         <span className="font-normal text-ink-3 tabular">{count}</span>
       </button>
@@ -266,7 +288,7 @@ function StatusDot({ r }: { r: ClientVideoRow }) {
   const map = {
     done: ["bg-good", "Coletado, transcrito e analisado"],
     partial: ["bg-warn", "Analisado com etapas faltando"],
-    running: ["bg-accent animate-pulse", "Processando"],
+    running: ["bg-[var(--band-below)] animate-pulse", "Processando"],
     failed: ["bg-bad", `Falhou: ${st.lastError ?? ""}`],
     blocked: ["bg-warn", `Aguardando configuração: ${st.lastError ?? ""}`],
     external: ["bg-warn", "Aguardando análise no Claude Code"],
@@ -278,13 +300,13 @@ function StatusDot({ r }: { r: ClientVideoRow }) {
 function Table({ rows, ids, now }: { rows: ClientVideoRow[]; ids: string[]; now: number }) {
   const openVideo = useOpenVideo();
   const [limit, setLimit] = useState(80);
-  const th = "sticky top-0 bg-bg/95 px-2.5 py-2 text-left text-[11.5px] font-medium text-ink-3 backdrop-blur";
+  const th = "px-2.5 py-2.5 text-left text-[12.5px] font-normal text-ink-3";
   return (
-    <div className="scrollbar-thin overflow-x-auto rounded-[14px] bg-surface shadow-sm ring-1 ring-hairline">
+    <div className="scrollbar-thin overflow-x-auto border-t border-hairline">
       <table className="w-full min-w-[980px] border-collapse text-[13px]">
         <thead>
           <tr className="border-b border-hairline">
-            <th className={cn(th, "w-12 pl-3")}>
+            <th className={cn(th, "w-12 pl-2")}>
               <span className="sr-only">Capa</span>
             </th>
             <th className={th}>Hook</th>
@@ -297,7 +319,7 @@ function Table({ rows, ids, now }: { rows: ClientVideoRow[]; ids: string[]; now:
             <th className={cn(th, "text-right")}>Views</th>
             <th className={cn(th, "text-right")}>Eng.</th>
             <th className={cn(th, "text-right")}>Data</th>
-            <th className={cn(th, "w-8 pr-3")}>
+            <th className={cn(th, "w-8 pr-2")}>
               <span className="sr-only">Status</span>
             </th>
           </tr>
@@ -316,12 +338,12 @@ function Table({ rows, ids, now }: { rows: ClientVideoRow[]; ids: string[]; now:
                 if (e.key === "ArrowDown") (e.currentTarget.nextElementSibling as HTMLElement | null)?.focus();
                 if (e.key === "ArrowUp") (e.currentTarget.previousElementSibling as HTMLElement | null)?.focus();
               }}
-              className="cursor-pointer border-b border-hairline transition-colors last:border-0 hover:bg-surface-2/60 focus:bg-accent-soft/50 focus:outline-none"
+              className="group cursor-pointer border-b border-hairline transition-colors hover:bg-hover focus:bg-active focus:outline-none"
             >
-              <td className="py-1.5 pl-3">
-                <div className="h-11 w-[25px] overflow-hidden rounded-[5px] bg-surface-2">
+              <td className="py-2 pl-2">
+                <div className="h-11 w-[25px] overflow-hidden rounded-[4px] bg-surface-2 ring-1 ring-hairline">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {r.thumb && <img src={r.thumb} alt="" loading="lazy" className="size-full object-cover" />}
+                  {r.thumb && <img src={r.thumb} alt="" loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-110" />}
                 </div>
               </td>
               <td className="max-w-[280px] px-2.5">
@@ -348,9 +370,9 @@ function Table({ rows, ids, now }: { rows: ClientVideoRow[]; ids: string[]; now:
               <td className="px-2.5 text-right tabular text-ink-2">{fmtPct(r.score?.engagementRate)}</td>
               <td className="whitespace-nowrap px-2.5 text-right text-ink-3" title={new Date(r.publishedAt).toLocaleString("pt-BR")}>
                 {fmtDate(r.publishedAt)}
-                {now - r.publishedAt < 48 * 3_600_000 && <span className="ml-1 text-accent-ink">novo</span>}
+                {now - r.publishedAt < 48 * 3_600_000 && <span className="ml-1.5 rounded-[3px] bg-[var(--band-below)]/14 px-1 text-[11px] font-medium text-[var(--band-below)]">novo</span>}
               </td>
-              <td className="pr-3 text-center">
+              <td className="pr-2 text-center">
                 <StatusDot r={r} />
               </td>
             </tr>
@@ -358,7 +380,7 @@ function Table({ rows, ids, now }: { rows: ClientVideoRow[]; ids: string[]; now:
         </tbody>
       </table>
       {rows.length > limit && (
-        <button onClick={() => setLimit(limit + 100)} className="w-full border-t border-hairline py-2.5 text-[12.5px] font-medium text-ink-2 hover:bg-surface-2">
+        <button onClick={() => setLimit(limit + 100)} className="w-full py-3 pl-3 text-left text-[13px] text-ink-3 transition-colors hover:bg-hover hover:text-ink-2">
           Mostrar mais {Math.min(100, rows.length - limit)} de {rows.length - limit}
         </button>
       )}
@@ -370,13 +392,13 @@ function Gallery({ rows, ids }: { rows: ClientVideoRow[]; ids: string[] }) {
   const [limit, setLimit] = useState(60);
   return (
     <>
-      <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-7">
         {rows.slice(0, limit).map((r) => (
           <VideoCard key={r.id} row={r} list={ids} />
         ))}
       </div>
       {rows.length > limit && (
-        <button onClick={() => setLimit(limit + 60)} className="mt-4 w-full rounded-xl py-2.5 text-[12.5px] font-medium text-ink-2 ring-1 ring-hairline hover:bg-surface-2">
+        <button onClick={() => setLimit(limit + 60)} className="mt-8 w-full rounded-[8px] py-3 text-[13px] font-medium text-ink-2 ring-1 ring-hairline transition-colors hover:bg-hover hover:text-ink">
           Mostrar mais
         </button>
       )}
@@ -397,10 +419,10 @@ function Board({ rows, groupBy, ids }: { rows: ClientVideoRow[]; groupBy: Exclud
   const label = (k: string) =>
     groupBy === "account" ? `@${k}` : groupBy === "hookType" ? hookLabel(k) : groupBy === "theme" ? themeLabel(k) : groupBy === "format" ? formatLabel(k) : (BAND_LABEL[k as Band] ?? "Sem score");
   return (
-    <div className="scrollbar-thin -mx-4 flex gap-3 overflow-x-auto px-4 pb-4 md:-mx-8 md:px-8">
+    <div className="scrollbar-thin bleed-page px-page flex gap-3 overflow-x-auto pb-4">
       {cols.map(([k, items]) => (
-        <div key={k} className="w-[250px] shrink-0 rounded-[14px] bg-surface-2/50 p-2 ring-1 ring-hairline">
-          <div className="mb-2 flex items-center gap-2 px-1.5 pt-1 text-[12.5px] font-semibold text-ink">
+        <div key={k} className="w-[260px] shrink-0 rounded-[10px] bg-surface-2/70 p-2">
+          <div className="mb-2 flex items-center gap-2 px-1.5 pt-1 text-[13px] font-medium text-ink">
             {groupBy === "band" && <span className="size-2 rounded-full" style={{ background: BAND_VAR[k as Band] ?? "var(--band-normal)" }} />}
             <span className="truncate">{label(k)}</span>
             <span className="ml-auto font-normal text-ink-3 tabular">{items.length}</span>
@@ -419,12 +441,12 @@ function Board({ rows, groupBy, ids }: { rows: ClientVideoRow[]; groupBy: Exclud
 function MenuPopover({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
   return (
     <Popover.Root>
-      <Popover.Trigger className="inline-flex h-8 items-center gap-1.5 rounded-[10px] bg-surface px-2.5 text-[12.5px] font-medium text-ink-2 shadow-sm ring-1 ring-hairline hover:text-ink data-[state=open]:text-ink">
+      <Popover.Trigger className="inline-flex h-8 items-center gap-1.5 rounded-[6px] px-2 text-[13.5px] text-ink-2 transition-colors hover:bg-hover hover:text-ink data-[state=open]:bg-hover data-[state=open]:text-ink">
         {icon}
-        <span className="hidden md:inline">{label}</span>
+        <span className="hidden lg:inline">{label}</span>
       </Popover.Trigger>
       <Popover.Portal>
-        <Popover.Content align="start" sideOffset={6} className="glass-strong z-50 w-60 rounded-xl p-1 shadow-lg ring-1 ring-hairline">
+        <Popover.Content align="start" sideOffset={6} collisionPadding={12} className="menu-surface z-50 w-60 rounded-[10px] p-1">
           {children}
         </Popover.Content>
       </Popover.Portal>
@@ -434,8 +456,8 @@ function MenuPopover({ icon, label, children }: { icon: ReactNode; label: string
 
 function MenuItem({ active, onClick, children }: { active?: boolean; onClick: () => void; children: ReactNode }) {
   return (
-    <button onClick={onClick} className={cn("flex h-8 w-full items-center gap-2 rounded-lg px-2 text-left text-[13px] hover:bg-surface-2", active ? "font-medium text-ink" : "text-ink-2")}>
-      <Check className={cn("size-3.5", active ? "text-accent" : "opacity-0")} />
+    <button onClick={onClick} className={cn("flex h-8 w-full items-center gap-2 rounded-[6px] px-2 text-left text-[14px] transition-colors hover:bg-hover", active ? "text-ink" : "text-ink-2")}>
+      <Check className={cn("size-3.5 text-ink transition-all", active ? "scale-100 opacity-100" : "scale-50 opacity-0")} />
       {children}
     </button>
   );
@@ -451,7 +473,7 @@ function ChipToggle<T extends string | number>({ values, options, onChange }: { 
             key={String(o.value)}
             onClick={() => onChange(on ? values.filter((v) => v !== o.value) : [...values, o.value])}
             aria-pressed={on}
-            className={cn("inline-flex h-6.5 items-center gap-1.5 rounded-full px-2.5 text-[12px] transition-colors", on ? "bg-accent-soft font-medium text-accent-ink" : "bg-surface-2 text-ink-2 hover:text-ink")}
+            className={cn("inline-flex h-7 items-center gap-1.5 rounded-[6px] px-2.5 text-[13px] transition-[background-color,color,transform] duration-150 active:scale-95", on ? "bg-accent font-medium text-on-accent" : "bg-accent-soft text-ink-2 hover:bg-active hover:text-ink")}
           >
             {o.dot && <span className="size-1.5 rounded-full" style={{ background: o.dot }} />}
             {o.label}
@@ -463,15 +485,15 @@ function ChipToggle<T extends string | number>({ values, options, onChange }: { 
 }
 
 function FilterPopover({ f, setF, accounts, count }: { f: Filters; setF: (f: Filters) => void; accounts: { id: number; handle: string }[]; count: number }) {
-  const sec = "text-[11px] font-semibold uppercase tracking-[0.05em] text-ink-3";
+  const sec = "text-[12px] font-medium text-ink-3";
   return (
     <Popover.Root>
-      <Popover.Trigger className={cn("inline-flex h-8 items-center gap-1.5 rounded-[10px] px-2.5 text-[12.5px] font-medium shadow-sm ring-1", count ? "bg-accent-soft text-accent-ink ring-transparent" : "bg-surface text-ink-2 ring-hairline hover:text-ink")}>
+      <Popover.Trigger className={cn("inline-flex h-8 items-center gap-1.5 rounded-[6px] px-2 text-[13.5px] transition-colors data-[state=open]:bg-hover", count ? "bg-accent-soft font-medium text-ink" : "text-ink-2 hover:bg-hover hover:text-ink")}>
         <SlidersHorizontal className="size-3.5" />
-        Filtros{count ? ` (${count})` : ""}
+        <span className={cn(!count && "hidden lg:inline")}>Filtros{count ? ` · ${count}` : ""}</span>
       </Popover.Trigger>
       <Popover.Portal>
-        <Popover.Content align="start" sideOffset={6} className="glass-strong scrollbar-thin z-50 max-h-[70vh] w-[min(440px,calc(100vw-24px))] space-y-3.5 overflow-y-auto rounded-2xl p-4 shadow-lg ring-1 ring-hairline">
+        <Popover.Content align="start" sideOffset={6} collisionPadding={12} className="menu-surface scrollbar-thin z-50 max-h-[70vh] w-[min(440px,calc(100vw-24px))] space-y-4 overflow-y-auto rounded-[10px] p-4">
           <div className="space-y-1.5">
             <div className={sec}>Período</div>
             <Segmented

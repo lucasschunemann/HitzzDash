@@ -17,7 +17,7 @@ function ChartTooltip({ hover }: { hover: Hover }) {
   if (!hover) return null;
   return (
     <div
-      className="glass-strong pointer-events-none absolute z-20 max-w-60 -translate-x-1/2 -translate-y-[calc(100%+10px)] rounded-lg px-2.5 py-1.5 text-[12px] leading-snug text-ink shadow-lg ring-1 ring-hairline"
+      className="tooltip pointer-events-none absolute z-20 max-w-60 -translate-x-1/2 -translate-y-[calc(100%+10px)] rounded-[6px] px-2.5 py-1.5 text-[12px] leading-snug"
       style={{ left: hover.x, top: hover.y }}
     >
       {hover.content}
@@ -162,7 +162,7 @@ export function RankBars({ items, onSelect, selected, unit = "score" }: { items:
             key={it.key}
             role="listitem"
             onClick={() => onSelect?.(it.key)}
-            className={cn("group grid w-full grid-cols-[minmax(0,150px)_1fr_auto] items-center gap-3 rounded-lg px-2 py-1 text-left transition-colors hover:bg-surface-2/70 sm:grid-cols-[minmax(0,190px)_1fr_auto]", selected === it.key && "bg-surface-2")}
+            className={cn("group grid w-full grid-cols-[minmax(0,150px)_1fr_auto] items-center gap-3 rounded-[6px] px-2 py-1 text-left transition-colors hover:bg-hover sm:grid-cols-[minmax(0,190px)_1fr_auto]", selected === it.key && "bg-surface-2")}
             title={typeof it.tooltip === "string" ? it.tooltip : undefined}
           >
             <span className={cn("truncate text-[12.5px]", small ? "text-ink-3" : "text-ink")}>{it.label}</span>
