@@ -12,6 +12,7 @@ Tudo roda na raiz do projeto com `npm run -s cc -- <comando>`. O CLI prepara ins
 - A análise de vídeos é feita pelo subagente `hitzz-analista` (Sonnet, 3 ferramentas, ~4 turnos por lote). Se esse tipo não existir na sessão, use `general-purpose` com `model: sonnet` e o mesmo prompt do arquivo `.claude/agents/hitzz-analista.md`.
 - Lotes grandes diluem o custo fixo de cada subagente: 24 vídeos por subagente.
 - Respostas finais curtas.
+- Só o dono dispara este trabalho (Claude Code dele ou a rotina semanal). O site não gasta tokens: a equipe só consulta.
 
 ## Passo a passo ("processe os pendentes")
 
@@ -27,6 +28,16 @@ Tudo roda na raiz do projeto com `npm run -s cc -- <comando>`. O CLI prepara ins
    - Escreva `{plan, script}` e rode `npm run -s cc -- save-script <pedido> <arquivo>`.
    - Se a originalidade passar de ~60%, reescreva o hook.
 6. Termine com 2–4 linhas: vídeos analisados, se o resumo foi atualizado, roteiros gravados (título + link `https://hitzz-dash.vercel.app/scripts?id=<id>`), erros.
+
+## Execução semanal (rotina de segunda-feira)
+
+Quando o pedido for a atualização semanal ("rode a atualização semanal do Hitzz"):
+
+1. `npm ci` se `node_modules` não existir.
+2. Passos 1–4 acima. A coleta só traz posts dos últimos 14 dias (a semana nova + métricas da anterior), e só os publicados nos últimos 7 dias são analisados; os mais antigos ficam só com métricas.
+3. `npm run -s cc -- weekly-scripts` cria o lote de 10 roteiros base da semana a partir das tendências e padrões (não duplica se já existir).
+4. Passo 5 para todos os pedidos pendentes. Com mais de 4 pedidos, divida entre até 3 subagentes `general-purpose` (`model: sonnet`), cada um com uma lista de números de pedido e a instrução de ler `ROTEIRO.md`, escrever `{plan, script}` para cada pedido e gravar com `save-script`. Cada roteiro do lote precisa de ângulo, hook e estrutura diferentes.
+5. Resumo final como no passo 6, com a contagem de roteiros do lote.
 
 ## Roteiro pedido direto no chat
 

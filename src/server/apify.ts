@@ -111,7 +111,8 @@ export type ApifyReel = Record<string, unknown> & {
   error?: string;
 };
 
-export async function scrapeReels(handle: string, limit: number, includeSharesCount: boolean, onProgress?: (m: string) => void) {
+/** newerThan (AAAA-MM-DD): só posts publicados a partir dessa data; sem ele, os mais recentes até o limite. */
+export async function scrapeReels(handle: string, limit: number, includeSharesCount: boolean, onProgress?: (m: string) => void, newerThan?: string) {
   return runActor<ApifyReel>(
     REEL_ACTOR,
     {
@@ -121,6 +122,7 @@ export async function scrapeReels(handle: string, limit: number, includeSharesCo
       includeSharesCount,
       includeTranscript: false,
       includeDownloadedVideo: false,
+      ...(newerThan ? { onlyPostsNewerThan: newerThan } : {}),
     },
     onProgress,
   );

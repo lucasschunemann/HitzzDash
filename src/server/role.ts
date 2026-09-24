@@ -17,5 +17,5 @@ export async function isOwner() {
 /** Nas rotas da API: devolve 403 para quem não é o dono, ou null para seguir. */
 export async function ownerOnly(): Promise<Response | null> {
   if (await isOwner()) return null;
-  return Response.json({ error: "Só o responsável pelo dashboard pode fazer isso. Os dados são atualizados toda segunda de madrugada." }, { status: 403 });
+  return Response.json({ error: "Só o administrador do dashboard pode fazer isso. Os dados são atualizados toda segunda-feira de madrugada." }, { status: 403 });
 }

@@ -12,6 +12,17 @@ export const SETTING_DEFAULTS = {
   scheduleHour: 7,
   includeSharesCount: false,
   keepVideoDays: 1,
+  /** Só vídeos publicados nos últimos N dias são analisados (transcrição, frames, IA). */
+  analysisWindowDays: 7,
+  /**
+   * A coleta busca posts dos últimos N dias: cobre a semana nova e atualiza as métricas da
+   * anterior (que ainda estava maturando). Deve ser maior que analysisWindowDays.
+   */
+  collectWindowDays: 14,
+  /** Conta com menos vídeos que isso no banco coleta o histórico completo, para ter a mediana de referência. */
+  baselineMinVideos: 12,
+  /** Semana (segunda, AAAA-MM-DD) do último lote de roteiros base gerado. */
+  weeklyScriptsBatch: "",
   lastScheduledRunAt: 0,
   /** Última vez que um worker (Mac) processou a fila. */
   workerLastSeenAt: 0,

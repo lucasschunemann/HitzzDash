@@ -36,7 +36,10 @@ export default async function SettingsPage() {
           <section className="flex max-w-[640px] gap-3 rounded-[10px] bg-surface-2 p-5 text-[14px] leading-relaxed text-ink-2">
             <Lock className="mt-0.5 size-4 shrink-0 text-ink-3" />
             <p>
-              Contas monitoradas, coleta e processamento são gerenciados pelo responsável pelo dashboard. Os dados, padrões e o resumo são atualizados <b className="font-medium text-ink">toda segunda-feira de madrugada</b>.
+              Contas monitoradas, coleta e processamento são gerenciados pelo administrador do dashboard. Os dados, padrões, o resumo e os roteiros da semana são atualizados <b className="font-medium text-ink">toda segunda-feira de madrugada</b>.{" "}
+              <a href="/api/logout?modo=admin" className="link-underline font-medium text-ink">
+                Entrar como administrador
+              </a>
             </p>
           </section>
         </div>

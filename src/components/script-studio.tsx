@@ -82,7 +82,8 @@ export function ScriptStudio({
   const router = useRouter();
   const owner = useOwner();
   const [showForm, setShowForm] = useState(initial.open || !selected);
-  const [filter, setFilter] = useState<"all" | "fav">("all");
+  const latestBatch = scripts.map((s) => s.input.batch).filter(Boolean).sort().at(-1);
+  const [filter, setFilter] = useState<"all" | "week" | "fav">(latestBatch ? "week" : "all");
   const onDone = useMemo(
     () => (id: number) => {
       toast.success("Roteiro pronto");
@@ -115,7 +116,7 @@ export function ScriptStudio({
     setJob({ id: j.jobId, status: "queued", progress: null, error: null, payload: null });
   };
 
-  const list = scripts.filter((s) => filter === "all" || s.favorite);
+  const list = scripts.filter((s) => filter === "all" || (filter === "fav" ? s.favorite : s.input.batch === latestBatch));
   const roots = list.filter((s) => !s.parentId || !list.some((p) => p.id === s.parentId));
 
   return (
@@ -123,13 +124,13 @@ export function ScriptStudio({
       {/* Histórico */}
       <aside className="order-2 lg:sticky lg:top-20 lg:order-1 lg:self-start" aria-label="Histórico de roteiros">
         <div className="mb-3 flex items-center justify-between">
-          <Segmented label="Filtro do histórico" value={filter} onChange={setFilter} options={[{ value: "all", label: "Todos" }, { value: "fav", label: "Favoritos" }]} />
+          <Segmented label="Filtro do histórico" value={filter} onChange={setFilter} options={[...(latestBatch ? [{ value: "week" as const, label: "Da semana" }] : []), { value: "all" as const, label: "Todos" }, { value: "fav" as const, label: "Favoritos" }]} />
           <Button size="sm" variant="ghost" icon={<Plus className="size-3.5" />} onClick={() => setShowForm(true)}>
             Novo
           </Button>
         </div>
         {list.length === 0 ? (
-          <p className="rounded-[8px] bg-surface-2 p-4 text-[13px] text-ink-3">{filter === "fav" ? "Nenhum favorito ainda." : "Os roteiros gerados ficam salvos aqui."}</p>
+          <p className="rounded-[8px] bg-surface-2 p-4 text-[13px] text-ink-3">{filter === "fav" ? "Nenhum favorito ainda." : filter === "week" ? "Os roteiros base desta semana aparecem aqui na segunda-feira." : "Os roteiros gerados ficam salvos aqui."}</p>
         ) : (
           <ul className="stagger space-y-px">
             {roots.map((s) => {
@@ -185,6 +186,7 @@ function HistoryItem({ s, active, child }: { s: ScriptRow; active: boolean; chil
         <span className={cn("truncate text-[14px]", active ? "font-medium text-ink" : "text-ink-2")}>{s.title}</span>
       </div>
       <div className="mt-0.5 text-[12px] text-ink-3">
+        {s.input.batch ? `Semana de ${s.input.batch.slice(8, 10)}/${s.input.batch.slice(5, 7)} · ` : ""}
         {child ? "Variação · " : ""}
         {fmtAgo(s.createdAt)} · {s.generator === "ai" ? "IA" : s.generator === "claude-code" ? "Claude Code" : "sem IA"}
       </div>
@@ -220,7 +222,7 @@ function GeneratorForm({ owner, initial, onSubmit, onCancel, aiEnabled, ccMode, 
         <div className="mb-6 flex gap-3 rounded-[8px] bg-surface-2 p-4 text-[13.5px] leading-relaxed text-ink-2">
           <Wand2 className="mt-0.5 size-4 shrink-0 text-ink" />
           <span>
-            Gere na hora um <b className="font-medium text-ink">esqueleto a partir dos dados</b>: tema, hook, estrutura e cenas escolhidos pelos números, sem IA. Roteiros escritos pelo Claude são preparados pelo responsável na atualização de segunda-feira.
+            Gere na hora um <b className="font-medium text-ink">esqueleto a partir dos dados</b>: tema, hook, estrutura e cenas escolhidos pelos números, sem IA. Toda segunda-feira chegam 10 roteiros base escritos pelo Claude a partir das tendências da semana.
           </span>
         </div>
       ) : ccMode ? (
@@ -744,7 +746,7 @@ function Cell({ label, children }: { label: string; children: ReactNode }) {
 function describe(r: ScriptRequestRow) {
   const i = r.input;
   const what = i.mode === "theme" ? `Tema: ${i.theme}` : i.mode === "category" ? `Categoria: ${SCRIPT_CATEGORIES[i.category ?? "auto"]}` : "Os dados decidem";
-  const kind = r.kind === "tone" ? " · ajuste de tom" : r.kind === "alternative" ? " · alternativa" : r.kind === "regenerate" ? " · nova versão" : "";
+  const kind = r.kind === "tone" ? " · ajuste de tom" : r.kind === "alternative" ? " · alternativa" : r.kind === "regenerate" ? " · nova versão" : r.kind === "weekly" ? " · lote semanal" : "";
   return `${what}${kind} · tom ${TONES[i.tone].toLowerCase()}`;
 }
 

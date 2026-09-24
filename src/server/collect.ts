@@ -11,6 +11,8 @@ import { getSettings } from "./settings";
 import { ensureProcessingRow } from "./pipeline";
 import { loadVideos } from "./data";
 
+const DAY = 86_400_000;
+
 export function normalizeHandle(input: string) {
   let h = input.trim();
   const m = h.match(/instagram\.com\/([^/?#]+)/i);
@@ -62,10 +64,14 @@ export async function collectAccount(accountId: number, progress: (m: string) =>
     if (p.followersCount != null) await db.insert(schema.accountSnapshots).values({ accountId, followers: p.followersCount, capturedAt: now }).run();
 
     progress(`Reels de @${acc.handle}`);
-    const items = await scrapeReels(acc.handle, settings.reelsPerAccount, settings.includeSharesCount, progress);
+    // Conta já com histórico: só a janela recente (semana nova + métricas da anterior).
+    // Conta nova: histórico completo até o limite, para a mediana de referência do score.
+    const known = (await db.select({ id: schema.videos.id }).from(schema.videos).where(and(eq(schema.videos.accountId, accountId), eq(schema.videos.isDemo, false))).all()).length;
+    const newerThan = known >= settings.baselineMinVideos ? new Date(now - settings.collectWindowDays * DAY).toISOString().slice(0, 10) : undefined;
+    const items = await scrapeReels(acc.handle, settings.reelsPerAccount, settings.includeSharesCount, progress, newerThan);
     const reels = items.map(normalizeReel).filter((x): x is NonNullable<typeof x> => x !== null);
     const followers = p.followersCount ?? acc.followers ?? null;
-    const fresh = await upsertReels(accountId, reels, followers, now);
+    const fresh = await upsertReels(accountId, reels, followers, now, now - settings.analysisWindowDays * DAY);
 
     await db.update(schema.accounts)
       .set({ lastScrapedAt: now, lastScrapeStatus: "ok", lastError: null })
@@ -91,7 +97,11 @@ type Reel = NonNullable<ReturnType<typeof normalizeReel>>;
  * Grava os Reels coletados. Deduplica por ID: conhecidos só atualizam métricas; novos são
  * inseridos e ganham linha de processamento. Sempre registra um snapshot de métricas.
  */
-export async function upsertReels(accountId: number, reels: Reel[], followers: number | null, now = Date.now()) {
+/**
+ * analyzeSince: vídeos novos publicados antes disso entram só com métricas e capa (base do score),
+ * sem transcrição, frames nem análise.
+ */
+export async function upsertReels(accountId: number, reels: Reel[], followers: number | null, now = Date.now(), analyzeSince = 0) {
   const ids = reels.map((r) => r.id);
   const known = new Set(
     ids.length ? (await db.select({ id: schema.videos.id }).from(schema.videos).where(inArray(schema.videos.id, ids)).all()).map((r) => r.id) : [],
@@ -123,7 +133,8 @@ export async function upsertReels(accountId: number, reels: Reel[], followers: n
       await tx.insert(schema.videoSnapshots).values({ videoId: r.id, views: r.views, likes: r.likes, comments: r.comments, capturedAt: now }).run();
     }
   });
-  for (const id of fresh) await ensureProcessingRow(id);
+  const old = new Set(reels.filter((r) => fresh.includes(r.id) && r.publishedAt < analyzeSince).map((r) => r.id));
+  for (const id of fresh) await ensureProcessingRow(id, old.has(id) ? "baseline" : "full");
   return fresh;
 }
 

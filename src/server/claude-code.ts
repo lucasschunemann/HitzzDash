@@ -16,7 +16,7 @@ import { ANALYSIS_SYSTEM, inputModeOf } from "./analyze";
 import { loadVideos, type VideoRow } from "./data";
 import type { Insights } from "./insights";
 import { structureSignature } from "@/lib/patterns";
-import { getInsights } from "./insights";
+import { getInsights, labelFor } from "./insights";
 import { DigestSchema, DIGEST_SYSTEM, startOfWeek } from "./digest";
 import {
   PlanSchema,
@@ -31,7 +31,9 @@ import {
   type ScriptInput,
   type Plan,
 } from "./scriptgen";
+import { SCRIPT_CATEGORIES, type ScriptCategory } from "@/lib/taxonomy";
 import { bump } from "./events";
+import { getSettings, setSettings } from "./settings";
 
 export const CC_DIR = path.join(DATA_DIR, "claude-code");
 export const CC_MODEL = "claude-code";
@@ -343,6 +345,58 @@ export async function createScriptRequest(input: ScriptInput, opts: { kind?: str
     .get();
   await bump("scripts");
   return row;
+}
+
+/**
+ * Lote semanal de roteiros base: N pedidos variados a partir das tendências e padrões da
+ * análise mais recente (oportunidades, temas e hooks em alta, padrões fortes, lacunas).
+ * Idempotente por semana: rodar de novo na mesma semana não duplica.
+ */
+export async function createWeeklyScriptRequests(n = 10, opts: { force?: boolean } = {}) {
+  const batch = new Date(startOfWeek(Date.now())).toISOString().slice(0, 10);
+  const settings = await getSettings();
+  if (settings.weeklyScriptsBatch === batch && !opts.force) return { batch, created: 0, skipped: "lote desta semana já foi criado" };
+  const ins = await getInsights();
+  if (ins.totals.analyzed < 3) return { batch, created: 0, skipped: "poucos vídeos analisados" };
+
+  type Seed = { theme?: string; hook?: string; category?: ScriptCategory; why: string };
+  const seeds: Seed[] = [];
+  const seen = new Set<string>();
+  // até n-3 pautas vêm dos dados; as 3 últimas vagas ficam para categorias de negócio
+  let cap = Math.max(1, n - 3);
+  const add = (x: Seed) => {
+    const k = `${x.theme ?? ""}|${x.hook ?? ""}|${x.category ?? ""}`;
+    if (seen.has(k) || seeds.length >= cap) return;
+    seen.add(k);
+    seeds.push(x);
+  };
+  const hookLead = ins.topPatterns.find((p) => p.dimension === "hookType")?.key;
+  for (const o of ins.opportunities) add({ theme: o.seed.theme, hook: o.seed.hookType, why: `Oportunidade: ${o.title}` });
+  for (const t of ins.themeTrends.filter((t) => t.status === "acelerando" || t.status === "ganhando tração" || t.status === "novo")) add({ theme: t.key, hook: hookLead, why: `Tema ${t.status}: ${labelFor("theme", t.key)}` });
+  for (const t of ins.hookTrends.filter((t) => t.status === "acelerando" || t.status === "ganhando tração" || t.status === "novo")) add({ hook: t.key, why: `Hook ${t.status}: ${labelFor("hookType", t.key)}` });
+  for (const p of ins.topPatterns.filter((p) => p.dimension === "theme" || p.dimension === "hookType")) add(p.dimension === "theme" ? { theme: p.key, why: `Padrão forte: ${p.label}` } : { hook: p.key, why: `Padrão forte: ${p.label}` });
+  for (const g of ins.gaps.filter((g) => g.dimension === "theme" || g.dimension === "hookType")) add(g.dimension === "theme" ? { theme: g.key, why: `Lacuna (${g.kind}): ${labelFor("theme", g.key)}` } : { hook: g.key, why: `Lacuna (${g.kind}): ${labelFor("hookType", g.key)}` });
+  // completa com categorias de negócio, para o lote cobrir lançamento, promoção, uso etc.
+  cap = n;
+  for (const c of ["launch", "promotion", "styling", "social_proof", "brand_daily", "seasonal", "promo_trip"] as ScriptCategory[]) add({ category: c, why: `Categoria: ${SCRIPT_CATEGORIES[c]}` });
+
+  const avoid: NonNullable<ScriptInput["avoid"]> = [];
+  for (const x of seeds) {
+    const input: ScriptInput = {
+      mode: x.category ? "category" : "auto",
+      category: x.category,
+      tone: "natural",
+      seedTheme: x.theme,
+      seedHook: x.hook,
+      brief: x.why,
+      avoid: avoid.slice(),
+      batch,
+    };
+    await createScriptRequest(input, { kind: "weekly" });
+    avoid.push({ theme: x.theme, hookType: x.hook });
+  }
+  await setSettings({ weeklyScriptsBatch: batch });
+  return { batch, created: seeds.length };
 }
 
 export async function pendingScriptRequests() {

@@ -284,7 +284,7 @@ function GroupSection({ label, count, grouped, children }: { label: string; coun
 function StatusDot({ r }: { r: ClientVideoRow }) {
   const st = r.status;
   const vals = [st.media, st.transcript, st.frames, st.analysis];
-  const state = vals.includes("running") ? "running" : st.analysis === "done" ? (vals.includes("failed") ? "partial" : "done") : vals.includes("failed") ? "failed" : vals.includes("blocked") ? "blocked" : st.analysis === "external" ? "external" : "pending";
+  const state = vals.includes("running") ? "running" : st.analysis === "skipped" ? "baseline" : st.analysis === "done" ? (vals.includes("failed") ? "partial" : "done") : vals.includes("failed") ? "failed" : vals.includes("blocked") ? "blocked" : st.analysis === "external" ? "external" : "pending";
   const map = {
     done: ["bg-good", "Coletado, transcrito e analisado"],
     partial: ["bg-warn", "Analisado com etapas faltando"],
@@ -293,6 +293,7 @@ function StatusDot({ r }: { r: ClientVideoRow }) {
     blocked: ["bg-warn", `Aguardando configuração: ${st.lastError ?? ""}`],
     external: ["bg-warn", "Aguardando análise no Claude Code"],
     pending: ["bg-ink-3", "Na fila"],
+    baseline: ["ring-1 ring-inset ring-ink-3", "Fora da janela semanal: só métricas e capa, sem análise"],
   } as const;
   return <span title={map[state][1]} className={cn("inline-block size-2 rounded-full", map[state][0])} />;
 }

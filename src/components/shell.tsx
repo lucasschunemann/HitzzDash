@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "motion/react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as Popover from "@radix-ui/react-popover";
 import { toast, Toaster } from "sonner";
-import { Inbox, Search, AlertTriangle, RefreshCw, CircleCheck, CircleAlert, ChevronsLeft, ChevronsRight, ChevronRight, LogOut, Bell } from "lucide-react";
+import { Inbox, Search, AlertTriangle, RefreshCw, CircleCheck, CircleAlert, ChevronsLeft, ChevronsRight, ChevronRight, LogOut, Bell, KeyRound } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { Kbd, Spinner, Tip, spring } from "./ui";
 import { CommandMenu } from "./command-menu";
@@ -77,6 +77,8 @@ export function Shell({ children, status }: { children: ReactNode; status: Shell
   const lastNotif = useRef<number | null>(null);
   const lastVersion = useRef<number | null>(null);
   const collapsed = collapsedPref || !wide;
+  // tela de login: sem barra lateral, sem consultas de status (ainda não há sessão)
+  const bare = pathname === "/login";
   // sem animação na primeira pintura (evita a barra "encolhendo" ao abrir no tablet)
   const [animate, setAnimate] = useState(false);
   useEffect(() => {
@@ -124,6 +126,7 @@ export function Shell({ children, status }: { children: ReactNode; status: Shell
 
   // Atualização ao vivo: o servidor avisa via SSE quando algo muda; a página se re-renderiza sem recarregar.
   useEffect(() => {
+    if (bare) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- status inicial da fila; depois só via SSE
     refreshStatus();
     if (status.live === "poll") {
@@ -150,7 +153,7 @@ export function Shell({ children, status }: { children: ReactNode; status: Shell
       es?.close();
       clearTimeout(retry);
     };
-  }, [router, refreshStatus, status.live]);
+  }, [router, refreshStatus, status.live, bare]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -166,6 +169,13 @@ export function Shell({ children, status }: { children: ReactNode; status: Shell
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [toggleSidebar]);
+
+  if (bare)
+    return (
+      <ThemeProvider>
+        <main className="page-in">{children}</main>
+      </ThemeProvider>
+    );
 
   const current = navFor(pathname);
   const detail = pathname.startsWith("/videos/") ? "Detalhe" : null;
@@ -221,11 +231,24 @@ export function Shell({ children, status }: { children: ReactNode; status: Shell
                     {NAV.filter((n) => n.href === "/settings").map((n) => (
                       <SideLink key={n.href} href={n.href} label={n.label} Icon={n.icon} active={isActive(pathname, n.href)} collapsed={collapsed} />
                     ))}
+                    {status.auth && !status.owner && (
+                      <Tip content={collapsed ? "Entrar como administrador" : null} side="right">
+                        <a href="/api/logout?modo=admin" className={cn("flex h-[30px] items-center gap-2.5 rounded-[6px] px-2 text-[14px] text-ink-2 transition-colors hover:bg-hover hover:text-ink", collapsed && "justify-center px-0")}>
+                          <KeyRound className="size-[18px] shrink-0 text-ink-3" />
+                          {!collapsed && "Entrar como administrador"}
+                        </a>
+                      </Tip>
+                    )}
                     {status.auth && (
                       <Tip content={collapsed ? "Sair" : null} side="right">
                         <a href="/api/logout" className={cn("flex h-[30px] items-center gap-2.5 rounded-[6px] px-2 text-[14px] text-ink-2 transition-colors hover:bg-hover hover:text-ink", collapsed && "justify-center px-0")}>
                           <LogOut className="size-[18px] shrink-0 text-ink-3" />
-                          {!collapsed && "Sair"}
+                          {!collapsed && (
+                            <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                              Sair
+                              <span className="truncate rounded-[4px] bg-accent-soft px-1.5 py-px text-[11px] font-medium text-ink-3">{status.owner ? "Administrador" : "Equipe"}</span>
+                            </span>
+                          )}
                         </a>
                       </Tip>
                     )}

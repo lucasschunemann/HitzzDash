@@ -112,6 +112,10 @@ export type ScriptInput = {
   seedTheme?: string;
   seedHook?: string;
   avoid?: { theme?: string; hookType?: string; topic?: string }[];
+  /** Lote semanal automático (segunda-feira AAAA-MM-DD) a que o roteiro pertence. */
+  batch?: string;
+  /** Por que este roteiro entrou no lote semanal (tendência, padrão, lacuna). */
+  brief?: string;
 };
 
 export type EvidenceItem = { videoId: string; handle: string; ratio: number | null; score: number | null; views: number | null; hookText: string | null; used: string[] };
@@ -198,6 +202,7 @@ export async function requestText(input: ScriptInput) {
     input.seedTheme || input.seedHook
       ? `Ponto de partida sugerido pela equipe (valide com os dados; pode ajustar se a evidência for fraca): ${[input.seedTheme && `tema ${input.seedTheme} (${themeLabel(input.seedTheme)})`, input.seedHook && `hook ${input.seedHook} (${hookLabel(input.seedHook)})`].filter(Boolean).join(", ")}.`
       : "",
+    input.brief ? `Roteiro base do lote semanal. Motivo da pauta: ${input.brief}. Cada roteiro do lote precisa de um ângulo próprio.` : "",
     input.avoid?.length ? `Já geramos alternativas com: ${input.avoid.map((a) => [a.theme, a.hookType, a.topic].filter(Boolean).join(" / ")).join("; ")}. Escolha um caminho DIFERENTE.` : "",
   ]
     .filter(Boolean)

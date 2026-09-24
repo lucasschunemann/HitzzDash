@@ -13,6 +13,7 @@
  *   npm run cc -- scripts                    prepara os pedidos de roteiro pendentes
  *   npm run cc -- new-script [--category launch|promotion|...] [--theme "texto"] [--tone natural] [--notes "..."]
  *   npm run cc -- save-script <pedido> <arq> valida e grava um roteiro
+ *   npm run cc -- weekly-scripts [--n 10]    cria o lote semanal de roteiros base (1 vez por semana)
  */
 import { loadEnvConfig } from "@next/env";
 
@@ -35,8 +36,10 @@ async function main() {
     case "work": {
       const boot = await import("../src/server/boot");
       const queue = await import("../src/server/queue");
-      const { syncMediaToDb } = await import("../src/server/pipeline");
+      const { syncMediaToDb, applyAnalysisWindow } = await import("../src/server/pipeline");
       boot.registerHandlers();
+      const outside = await applyAnalysisWindow();
+      if (outside) console.log(`${outside} vídeo(s) publicados antes da janela de análise ficaram só com métricas`);
       await boot.schedulerTick();
       const pending = await boot.enqueuePendingProcessing({});
       if (pending) console.log(`${pending} vídeo(s) com etapas pendentes voltaram para a fila`);
@@ -49,6 +52,10 @@ async function main() {
     case "sync-media": {
       const { syncMediaToDb } = await import("../src/server/pipeline");
       out(await syncMediaToDb((m) => console.log(m)));
+      break;
+    }
+    case "weekly-scripts": {
+      out(await cc.createWeeklyScriptRequests(Number(arg("n") ?? 10), { force: process.argv.includes("--force") }));
       break;
     }
     case "status": {
@@ -117,7 +124,7 @@ async function main() {
       out({ ok: true, ...await cc.saveScriptRequest(Number(a1), a2) });
       break;
     default:
-      out("Comandos: work, sync-media, status, guides, videos, save-analysis, digest, save-digest, scripts, new-script, save-script");
+      out("Comandos: work, sync-media, weekly-scripts, status, guides, videos, save-analysis, digest, save-digest, scripts, new-script, save-script");
   }
 }
 

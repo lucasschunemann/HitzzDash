@@ -5,7 +5,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { db, schema } from "@/db";
 import type { StageStatus } from "@/db/schema";
 import { THUMBS_DIR, VIDEOS_DIR, mediaRel, mediaAbs } from "@/lib/paths";
@@ -14,6 +14,7 @@ import { transcribe, classifySpeech, SCRIBE_MODEL, ScribeError } from "./scribe"
 import { analyzeVideo } from "./analyze";
 import { LlmError } from "./llm";
 import { bump } from "./events";
+import { getSettings } from "./settings";
 import { loadVideos } from "./data";
 import { hasKey, transcriberMode, analyzerMode } from "./env";
 import { storeImage, isStoredUrl, frameKey } from "./storage";
@@ -46,8 +47,18 @@ async function setStage(videoId: string, stage: Stage, status: StageStatus, erro
   await bump("videos");
 }
 
-export async function ensureProcessingRow(videoId: string) {
-  await db.insert(schema.processing).values({ videoId, updatedAt: Date.now() }).onConflictDoNothing().run();
+/**
+ * full: pipeline completo. baseline: vídeo fora da janela de análise, entra só com capa e
+ * métricas (serve de referência para o score da conta), sem vídeo, transcrição, frames ou IA.
+ */
+export async function ensureProcessingRow(videoId: string, mode: "full" | "baseline" = "full") {
+  const skip = mode === "baseline" ? ({ transcript: "skipped", frames: "skipped", analysis: "skipped" } as const) : {};
+  await db.insert(schema.processing).values({ videoId, ...skip, updatedAt: Date.now() }).onConflictDoNothing().run();
+}
+
+async function isBaselineOnly(videoId: string) {
+  const p = await db.select({ analysis: schema.processing.analysis }).from(schema.processing).where(eq(schema.processing.videoId, videoId)).get();
+  return p?.analysis === "skipped";
 }
 
 const retryableOf = (e: unknown) =>
@@ -56,7 +67,7 @@ const retryableOf = (e: unknown) =>
 async function stageMedia(videoId: string, progress: (m: string) => void) {
   const v = (await db.select().from(schema.videos).where(eq(schema.videos.id, videoId)).get())!;
   const needThumb = !v.thumbnailPath || !fs.existsSync(mediaAbs(v.thumbnailPath));
-  const needVideo = !v.videoDeletedAt && (!v.videoPath || !fs.existsSync(mediaAbs(v.videoPath)));
+  const needVideo = !v.videoDeletedAt && (!v.videoPath || !fs.existsSync(mediaAbs(v.videoPath))) && !(await isBaselineOnly(videoId));
   if (!needThumb && !needVideo) return;
   await setStage(videoId, "media", "running");
   let videoError: string | null = null;
@@ -176,6 +187,8 @@ async function stageFrames(videoId: string, progress: (m: string) => void) {
 async function stageAnalysis(videoId: string, progress: (m: string) => void, force = false) {
   const existing = await db.select().from(schema.analyses).where(eq(schema.analyses.videoId, videoId)).get();
   if (existing && !force) return await setStage(videoId, "analysis", "done");
+  // fora da janela semanal: fica só com métricas (a menos que o dono peça "Reanalisar")
+  if (!force && (await isBaselineOnly(videoId))) return;
   if (analyzerMode() === "claude_code") return await setStage(videoId, "analysis", "external", "Aguardando análise no Claude Code.");
   if (!hasKey("anthropic")) return await setStage(videoId, "analysis", "blocked", "ANTHROPIC_API_KEY ausente: análise pendente.");
   const v = (await db.select().from(schema.videos).where(eq(schema.videos.id, videoId)).get())!;
@@ -223,6 +236,37 @@ async function stageAnalysis(videoId: string, progress: (m: string) => void, for
 /** Reels têm no máximo alguns minutos; acima disso é live/IGTV e fica fora da análise. */
 export const MAX_REEL_SECONDS = 600;
 
+/**
+ * Janela semanal: vídeo sem análise e publicado antes de `analysisWindowDays` vira só referência
+ * (capa e métricas), sem transcrição, frames nem IA. Com videoId, vale só para ele.
+ */
+export async function applyAnalysisWindow(videoId?: string) {
+  const { analysisWindowDays } = await getSettings();
+  const cutoff = Date.now() - analysisWindowDays * 86_400_000;
+  const open: StageStatus[] = ["pending", "external", "blocked", "failed"];
+  const rows = await db
+    .select({ id: schema.processing.videoId, transcript: schema.processing.transcript, frames: schema.processing.frames, publishedAt: schema.videos.publishedAt, analyzed: schema.analyses.videoId })
+    .from(schema.processing)
+    .innerJoin(schema.videos, eq(schema.videos.id, schema.processing.videoId))
+    .leftJoin(schema.analyses, eq(schema.analyses.videoId, schema.processing.videoId))
+    .where(videoId ? eq(schema.processing.videoId, videoId) : inArray(schema.processing.analysis, open))
+    .all();
+  let n = 0;
+  for (const r of rows) {
+    if (r.analyzed || r.publishedAt >= cutoff) continue;
+    const p = await db.select({ analysis: schema.processing.analysis }).from(schema.processing).where(eq(schema.processing.videoId, r.id)).get();
+    if (!p || !open.includes(p.analysis)) continue;
+    await db
+      .update(schema.processing)
+      .set({ analysis: "skipped", transcript: r.transcript === "done" ? "done" : "skipped", frames: r.frames === "done" ? "done" : "skipped", lastError: null, errorStage: null, updatedAt: Date.now() })
+      .where(eq(schema.processing.videoId, r.id))
+      .run();
+    n++;
+  }
+  if (n) await bump("videos");
+  return n;
+}
+
 export async function processVideo(videoId: string, progress: (m: string) => void, opts: { forceAnalysis?: boolean } = {}) {
   await ensureProcessingRow(videoId);
   const v0 = await db.select().from(schema.videos).where(eq(schema.videos.id, videoId)).get();
@@ -242,6 +286,7 @@ export async function processVideo(videoId: string, progress: (m: string) => voi
     await bump("videos");
     return;
   }
+  if (!opts.forceAnalysis) await applyAnalysisWindow(videoId);
   const stages: [Stage, () => Promise<void>][] = [
     ["media", () => stageMedia(videoId, progress)],
     ["transcript", () => stageTranscript(videoId, progress)],
