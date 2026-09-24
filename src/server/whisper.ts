@@ -11,7 +11,8 @@ import { TMP_DIR } from "@/lib/paths";
 
 const MODELS_DIR = path.join(/*turbopackIgnore: true*/ process.cwd(), "models");
 export const WHISPER_MODEL_FILE = process.env.WHISPER_MODEL?.trim() || path.join(MODELS_DIR, "ggml-large-v3-turbo-q5_0.bin");
-const VAD_MODEL_FILE = path.join(MODELS_DIR, "ggml-silero-v5.1.2.bin");
+// na nuvem os modelos ficam fora do repositório (ver scripts/cloud-setup.sh)
+const VAD_MODEL_FILE = process.env.WHISPER_VAD_MODEL?.trim() || path.join(MODELS_DIR, "ggml-silero-v5.1.2.bin");
 export const WHISPER_MODEL_NAME = `whisper.cpp ${path.basename(WHISPER_MODEL_FILE).replace(/^ggml-|\.bin$/g, "")}`;
 
 export class WhisperError extends Error {

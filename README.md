@@ -120,6 +120,16 @@ Dica: crie o banco Turso na mesma região das funções da Vercel, para as pági
 
 Os limites do plano Hobby (banda, execuções) cobrem com folga o uso de uma equipe pequena. Os termos da Vercel descrevem o Hobby como uso pessoal/não comercial; se a empresa quiser formalizar, é só trocar para o Pro, sem mudar código.
 
+## Rotina semanal na nuvem
+
+Toda segunda-feira às 3h (horário de Brasília) uma rotina do Claude Code roda num ambiente de nuvem da Anthropic, sem depender do Mac. Ela clona este repositório, roda `npm ci` e segue a skill `hitzz`: coleta pela Apify, Whisper, frames, análise dos vídeos, resumo semanal e roteiros pedidos. Tudo é gravado no Turso, e o site atualiza sozinho. O uso sai da assinatura do Claude do dono.
+
+O ambiente de nuvem (claude.ai/code → seletor de ambiente → **Add cloud environment**) precisa de:
+
+- **Setup script**: o conteúdo de `scripts/cloud-setup.sh`, que instala ffmpeg e whisper.cpp e baixa os modelos para `/opt/whisper/models`. Fica em cache por ~7 dias.
+- **Variáveis**: `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `APIFY_TOKEN`, `TRANSCRIBER=local`, `ANALYZER=claude_code`, `WHISPER_MODEL=/opt/whisper/models/ggml-large-v3-turbo-q5_0.bin` e `WHISPER_VAD_MODEL=/opt/whisper/models/ggml-silero-v5.1.2.bin`.
+- **Rede**: *Custom*, com a lista padrão mais `api.apify.com`, `*.cdninstagram.com`, `*.fbcdn.net`, `*.turso.io`, `huggingface.co` e `*.hf.co`.
+
 ## Decisões de arquitetura
 
 | Decisão | Por quê |

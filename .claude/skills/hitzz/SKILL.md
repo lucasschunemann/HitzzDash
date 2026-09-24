@@ -15,7 +15,7 @@ Tudo roda na raiz do projeto com `npm run -s cc -- <comando>`. O CLI prepara ins
 
 ## Passo a passo ("processe os pendentes")
 
-1. `npm run -s cc -- work` (em background se demorar): roda a fila do Mac (coletas, download, Whisper, frames) e envia imagens ao Blob.
+1. `npm run -s cc -- work` (em background se demorar): roda a fila (coletas, download, Whisper, frames) e grava as imagens comprimidas no banco. Funciona no Mac e no ambiente de nuvem da rotina semanal.
 2. `npm run -s cc -- status` → N vídeos aguardando.
 3. Se N > 0: dispare ceil(N/24) subagentes `hitzz-analista` em paralelo (no máximo 6 por vez), cada um com o prompt "Analise um lote." (o subagente usa `pack --n 24`, que reserva os vídeos sozinho; nunca passe IDs). Repita até `status` dar 0.
 4. Se houve análise nova: resumo semanal.
