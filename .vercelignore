@@ -1,0 +1,8 @@
+# Só o código vai para a Vercel. Modelos do Whisper, banco local e mídia ficam no Mac.
+models
+data
+.next
+node_modules
+.env
+.env.*
+!.env.example
