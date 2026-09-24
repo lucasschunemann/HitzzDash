@@ -81,7 +81,8 @@ export function ScriptStudio({
 }) {
   const router = useRouter();
   const owner = useOwner();
-  const [showForm, setShowForm] = useState(initial.open || !selected);
+  // a equipe só lê: roteiros novos chegam no lote semanal gerado pelo administrador
+  const [showForm, setShowForm] = useState(owner && (initial.open || !selected));
   const latestBatch = scripts.map((s) => s.input.batch).filter(Boolean).sort().at(-1);
   const [filter, setFilter] = useState<"all" | "week" | "fav">(latestBatch ? "week" : "all");
   const onDone = useMemo(
@@ -125,9 +126,11 @@ export function ScriptStudio({
       <aside className="order-2 lg:sticky lg:top-20 lg:order-1 lg:self-start" aria-label="Histórico de roteiros">
         <div className="mb-3 flex items-center justify-between">
           <Segmented label="Filtro do histórico" value={filter} onChange={setFilter} options={[...(latestBatch ? [{ value: "week" as const, label: "Da semana" }] : []), { value: "all" as const, label: "Todos" }, { value: "fav" as const, label: "Favoritos" }]} />
-          <Button size="sm" variant="ghost" icon={<Plus className="size-3.5" />} onClick={() => setShowForm(true)}>
-            Novo
-          </Button>
+          {owner && (
+            <Button size="sm" variant="ghost" icon={<Plus className="size-3.5" />} onClick={() => setShowForm(true)}>
+              Novo
+            </Button>
+          )}
         </div>
         {list.length === 0 ? (
           <p className="rounded-[8px] bg-surface-2 p-4 text-[13px] text-ink-3">{filter === "fav" ? "Nenhum favorito ainda." : filter === "week" ? "Os roteiros base desta semana aparecem aqui na segunda-feira." : "Os roteiros gerados ficam salvos aqui."}</p>
@@ -161,7 +164,7 @@ export function ScriptStudio({
               {busy ? (
                 <Progress job={job!} aiEnabled={aiEnabled} />
               ) : (
-                <GeneratorForm owner={owner} initial={initial} aiEnabled={aiEnabled} ccMode={mode === "claude_code"} canGenerate={canGenerate} onSubmit={(b) => start("/api/scripts", b)} onCancel={selected ? () => setShowForm(false) : undefined} />
+                <GeneratorForm initial={initial} aiEnabled={aiEnabled} ccMode={mode === "claude_code"} canGenerate={canGenerate} onSubmit={(b) => start("/api/scripts", b)} onCancel={selected ? () => setShowForm(false) : undefined} />
               )}
             </motion.div>
           )}
@@ -170,7 +173,13 @@ export function ScriptStudio({
         {!busy && selected && <ScriptView s={selected} rows={rows} family={scripts.filter((x) => x.id !== selected.id && (x.parentId === (selected.parentId ?? selected.id) || x.id === selected.parentId))} onVariant={(body) => start(`/api/scripts/${selected.id}/variant`, body)} aiEnabled={aiEnabled || mode === "claude_code"} owner={owner} />}
         {!busy && !selected && !showForm && (
           <Card>
-            <EmptyState icon={<Sparkles className="size-5" />} title="Nenhum roteiro selecionado" action={<Button variant="primary" onClick={() => setShowForm(true)}>Gerar roteiro</Button>} />
+            {owner ? (
+              <EmptyState icon={<Sparkles className="size-5" />} title="Nenhum roteiro selecionado" action={<Button variant="primary" onClick={() => setShowForm(true)}>Gerar roteiro</Button>} />
+            ) : (
+              <EmptyState icon={<Sparkles className="size-5" />} title="Nenhum roteiro ainda">
+                Toda segunda-feira chegam 10 roteiros base, escritos a partir das tendências e da análise da semana.
+              </EmptyState>
+            )}
           </Card>
         )}
       </div>
@@ -194,7 +203,7 @@ function HistoryItem({ s, active, child }: { s: ScriptRow; active: boolean; chil
   );
 }
 
-function GeneratorForm({ owner, initial, onSubmit, onCancel, aiEnabled, ccMode, canGenerate }: { owner: boolean; initial: { seedTheme?: string; seedHook?: string }; onSubmit: (b: Partial<ScriptInput> & { via?: "heuristic" }) => void; onCancel?: () => void; aiEnabled: boolean; ccMode: boolean; canGenerate: boolean }) {
+function GeneratorForm({ initial, onSubmit, onCancel, aiEnabled, ccMode, canGenerate }: { initial: { seedTheme?: string; seedHook?: string }; onSubmit: (b: Partial<ScriptInput> & { via?: "heuristic" }) => void; onCancel?: () => void; aiEnabled: boolean; ccMode: boolean; canGenerate: boolean }) {
   const [mode, setMode] = useState<ScriptInput["mode"]>("auto");
   const [category, setCategory] = useState<ScriptCategory>("launch");
   const [theme, setTheme] = useState("");
@@ -218,14 +227,7 @@ function GeneratorForm({ owner, initial, onSubmit, onCancel, aiEnabled, ccMode, 
           </button>
         )}
       </div>
-      {!owner ? (
-        <div className="mb-6 flex gap-3 rounded-[8px] bg-surface-2 p-4 text-[13.5px] leading-relaxed text-ink-2">
-          <Wand2 className="mt-0.5 size-4 shrink-0 text-ink" />
-          <span>
-            Gere na hora um <b className="font-medium text-ink">esqueleto a partir dos dados</b>: tema, hook, estrutura e cenas escolhidos pelos números, sem IA. Toda segunda-feira chegam 10 roteiros base escritos pelo Claude a partir das tendências da semana.
-          </span>
-        </div>
-      ) : ccMode ? (
+      {ccMode ? (
         <div className="mb-6 flex gap-3 rounded-[8px] bg-surface-2 p-4 text-[13.5px] leading-relaxed text-ink-2">
           <Terminal className="mt-0.5 size-4 shrink-0 text-ink" />
           <span>
@@ -323,21 +325,15 @@ function GeneratorForm({ owner, initial, onSubmit, onCancel, aiEnabled, ccMode, 
           />
         </label>
         <div className="flex items-center gap-3">
-          {owner ? (
-            <Button
-              variant="primary"
-              disabled={!canGenerate || (mode === "theme" && !theme.trim())}
-              icon={<Wand2 className="size-3.5" />}
-              onClick={() => onSubmit(payload())}
-            >
-              {ccMode ? "Pedir ao Claude Code" : "Gerar roteiro"}
-            </Button>
-          ) : (
-            <Button variant="primary" disabled={!canGenerate || (mode === "theme" && !theme.trim())} icon={<Wand2 className="size-3.5" />} onClick={() => onSubmit({ ...payload(), via: "heuristic" })}>
-              Gerar esqueleto
-            </Button>
-          )}
-          {owner && ccMode && (
+          <Button
+            variant="primary"
+            disabled={!canGenerate || (mode === "theme" && !theme.trim())}
+            icon={<Wand2 className="size-3.5" />}
+            onClick={() => onSubmit(payload())}
+          >
+            {ccMode ? "Pedir ao Claude Code" : "Gerar roteiro"}
+          </Button>
+          {ccMode && (
             <Button disabled={!canGenerate || (mode === "theme" && !theme.trim())} onClick={() => onSubmit({ ...payload(), via: "heuristic" })}>
               Esqueleto rápido (sem IA)
             </Button>

@@ -57,9 +57,11 @@ export default async function TodayPage() {
                 Atualizar agora
               </ApiButton>
             )}
-            <Link href="/scripts?new=1" className="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-accent px-3 text-[13.5px] font-medium text-on-accent shadow-sm transition-[background-color,transform] duration-150 hover:bg-accent-hover active:scale-[0.97]">
-              <PenLine className="size-3.5" /> Gerar roteiro
-            </Link>
+            {owner && (
+              <Link href="/scripts?new=1" className="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-accent px-3 text-[13.5px] font-medium text-on-accent shadow-sm transition-[background-color,transform] duration-150 hover:bg-accent-hover active:scale-[0.97]">
+                <PenLine className="size-3.5" /> Gerar roteiro
+              </Link>
+            )}
           </>
         }
       />
@@ -181,9 +183,11 @@ export default async function TodayPage() {
                       const r = client(id);
                       return r ? <VideoChip key={id} row={r} list={o.ids} /> : null;
                     })}
-                    <Link href={`/scripts?${q}`} className="group ml-auto inline-flex h-7 items-center gap-1 rounded-[6px] px-2 text-[13px] font-medium text-ink transition-colors hover:bg-hover">
-                      Gerar roteiro <ArrowRight className="nudge size-3.5" />
-                    </Link>
+                    {owner && (
+                      <Link href={`/scripts?${q}`} className="group ml-auto inline-flex h-7 items-center gap-1 rounded-[6px] px-2 text-[13px] font-medium text-ink transition-colors hover:bg-hover">
+                        Gerar roteiro <ArrowRight className="nudge size-3.5" />
+                      </Link>
+                    )}
                   </div>
                 </Card>
               );

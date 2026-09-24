@@ -16,11 +16,9 @@ export async function GET() {
 /** Enfileira a geração de um roteiro; o cliente acompanha pelo /api/jobs/[id]. */
 export async function POST(req: Request) {
   const b = (await req.json().catch(() => ({}))) as Partial<ScriptInput> & { via?: "heuristic" };
-  // a equipe só gera o esqueleto sem IA; pedidos ao Claude (tokens do dono) são só do dono
-  if (b.via !== "heuristic") {
-    const denied = await ownerOnly();
-    if (denied) return denied;
-  }
+  // gerar roteiro (com ou sem IA) é só do administrador; a equipe recebe o lote semanal
+  const denied = await ownerOnly();
+  if (denied) return denied;
   const mode = b.mode === "theme" || b.mode === "category" ? b.mode : "auto";
   if (mode === "theme" && !b.theme?.trim()) return Response.json({ error: "Descreva o tema do roteiro." }, { status: 400 });
   const input: ScriptInput = {

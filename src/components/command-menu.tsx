@@ -72,9 +72,11 @@ export function CommandMenu({ open, onOpenChange, owner }: { open: boolean; onOp
                       <RefreshCw className="size-4 text-ink-3" /> Atualizar todas as contas agora
                     </Command.Item>
                   )}
-                  <Command.Item className={item} onSelect={() => go("/scripts?new=1")}>
-                    <PenLine className="size-4 text-ink-3" /> Gerar roteiro
-                  </Command.Item>
+                  {owner && (
+                    <Command.Item className={item} onSelect={() => go("/scripts?new=1")}>
+                      <PenLine className="size-4 text-ink-3" /> Gerar roteiro
+                    </Command.Item>
+                  )}
                   {owner && (
                     <Command.Item className={item} onSelect={() => go("/accounts?add=1")}>
                       <UserPlus className="size-4 text-ink-3" /> Adicionar conta

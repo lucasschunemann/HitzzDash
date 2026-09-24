@@ -13,12 +13,14 @@ import { loadVideos, toClientRow, type ClientVideoRow } from "@/server/data";
 import { EVIDENCE_HINT, type GroupStat } from "@/lib/patterns";
 import { HOOK_TYPES, THEMES, FORMATS } from "@/lib/taxonomy";
 import { fmtPct, fmtScore } from "@/lib/format";
+import { isOwner } from "@/server/role";
 
 export const metadata: Metadata = { title: "Padrões" };
 
 export default async function PatternsPage() {
   await connection();
   const ins = await getInsights();
+  const owner = await isOwner();
   const { byId } = await loadVideos();
   const rows: Record<string, ClientVideoRow> = {};
   const add = (ids: string[]) => ids.forEach((id) => byId.get(id) && (rows[id] = toClientRow(byId.get(id)!)));
@@ -120,7 +122,7 @@ export default async function PatternsPage() {
         </section>
 
         <section id="hooks" className="grid scroll-mt-28 gap-6 lg:grid-cols-2">
-          <RankingCard title="Tipos de hook" hint="Score mediano por tipo de abertura" stats={hooks} rows={rows} scriptParam="hook" />
+          <RankingCard title="Tipos de hook" hint="Score mediano por tipo de abertura" stats={hooks} rows={rows} scriptParam={owner ? "hook" : undefined} />
           <Card className="p-5 md:p-6">
             <SectionTitle hint="Hooks que mais cresceram na janela recente (3 semanas) contra a anterior">Hooks em movimento</SectionTitle>
             <TrendList trends={ins.hookTrends} labelOf={hookLabels} rows={rows} />
@@ -137,7 +139,7 @@ export default async function PatternsPage() {
 
         <section id="temas" className="scroll-mt-28 space-y-6">
           <div className="grid gap-6 lg:grid-cols-2">
-            <RankingCard title="Temas" hint="Score mediano por tema central" stats={themes} rows={rows} scriptParam="theme" />
+            <RankingCard title="Temas" hint="Score mediano por tema central" stats={themes} rows={rows} scriptParam={owner ? "theme" : undefined} />
             <Card className="p-5 md:p-6">
               <SectionTitle hint="Temas ganhando tração e acelerando (volume e score recentes vs anteriores)">Temas em movimento</SectionTitle>
               <TrendList trends={ins.themeTrends} labelOf={themeLabels} rows={rows} />
@@ -207,7 +209,7 @@ export default async function PatternsPage() {
                     {g.kind === "mercado pouco explora" && <p className="mt-1 text-[12px] text-ink-3">Pouca amostra: é uma aposta de diferenciação, não um padrão comprovado.</p>}
                     <div className="mt-2 flex flex-wrap items-center gap-1.5">
                       {g.ids.map((id) => (rows[id] ? <VideoChip key={id} row={rows[id]} list={g.ids} /> : null))}
-                      {(dim === "theme" || dim === "hookType") && (
+                      {owner && (dim === "theme" || dim === "hookType") && (
                         <Link href={`/scripts?new=1&${dim === "theme" ? "theme" : "hook"}=${g.key}`} className="group ml-auto inline-flex items-center gap-1 rounded-[6px] px-2 py-1 text-[13px] font-medium text-ink transition-colors hover:bg-hover">
                           Roteiro <ArrowRight className="nudge size-3.5" />
                         </Link>

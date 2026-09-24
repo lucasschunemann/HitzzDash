@@ -31,6 +31,7 @@ const FLAG_LABEL: Record<string, string> = {
 };
 
 export function VideoDetail({ data, compact, origin }: { data: VideoDetailData; compact?: boolean; heroRef?: unknown; origin?: Origin }) {
+  const owner = useOwner();
   const { row, analysis: a } = data;
   const heroRef = useRef<HTMLDivElement>(null);
   const [flying, setFlying] = useState(Boolean(origin?.thumb));
@@ -105,9 +106,11 @@ export function VideoDetail({ data, compact, origin }: { data: VideoDetailData; 
                 <ExternalLink className="size-3.5" /> Instagram
               </a>
             )}
-            <Link href={`/scripts?new=1&hook=${row.hookType ?? ""}&theme=${row.theme ?? ""}`} className="inline-flex h-7 items-center gap-1.5 rounded-[6px] bg-accent px-2.5 text-[13px] font-medium text-on-accent transition-[background-color,transform] hover:bg-accent-hover active:scale-[0.97]">
-              <Sparkles className="size-3.5" /> Roteiro com este padrão
-            </Link>
+            {owner && (
+              <Link href={`/scripts?new=1&hook=${row.hookType ?? ""}&theme=${row.theme ?? ""}`} className="inline-flex h-7 items-center gap-1.5 rounded-[6px] bg-accent px-2.5 text-[13px] font-medium text-on-accent transition-[background-color,transform] hover:bg-accent-hover active:scale-[0.97]">
+                <Sparkles className="size-3.5" /> Roteiro com este padrão
+              </Link>
+            )}
           </div>
         </div>
       </div>

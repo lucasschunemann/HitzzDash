@@ -104,7 +104,7 @@ Equipe ──(senha)──▶ Vercel: dashboard, padrões, roteiros, pedidos
 
 - Na Vercel não há disco nem processo contínuo. "Coletar", "Atualizar agora" e "Reprocessar" apenas **enfileiram** o trabalho no banco. O Mac executa com `npm run cc -- work`, ou dizendo "processe os pendentes do Hitzz" no Claude Code. A barra lateral mostra quando o Mac processou pela última vez.
 - O que roda na hora, mesmo na Vercel: navegar pelos dados, reclassificar hooks, gerenciar contas, pedir roteiros, gerar o esqueleto sem IA e recalcular o resumo pelos números.
-- **Login e papéis**: `DASHBOARD_PASSWORD` é a senha da equipe (só leitura) e `OWNER_PASSWORD` a do dono. Só o dono coleta, pede análise/roteiro/resumo ao Claude, gerencia contas e mexe em configurações; isso é verificado no servidor (a equipe recebe 403) e os botões somem da tela. A equipe consulta tudo e pode gerar o esqueleto de roteiro sem IA. Sem `OWNER_PASSWORD`, ninguém na Vercel é dono. Localmente, sem senha, você é o dono. Sem `DASHBOARD_PASSWORD`, a Vercel não serve nada.
+- **Login e papéis**: `DASHBOARD_PASSWORD` é a senha da equipe (só leitura) e `OWNER_PASSWORD` a do dono. Só o dono coleta, pede análise/roteiro/resumo ao Claude, gerencia contas e mexe em configurações; isso é verificado no servidor (a equipe recebe 403) e os botões somem da tela. A equipe consulta tudo, inclusive os 10 roteiros base que chegam toda segunda; gerar roteiro é só do administrador. Sem `OWNER_PASSWORD`, ninguém na Vercel é dono. Localmente, sem senha, você é o dono. Sem `DASHBOARD_PASSWORD`, a Vercel não serve nada.
 - **Atualização da tela**: a cada 20 s na Vercel (funções serverless não mantêm SSE); em tempo real no Mac.
 
 ### Passo a passo
