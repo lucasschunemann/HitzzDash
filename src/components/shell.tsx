@@ -15,6 +15,7 @@ import { NAV, navFor } from "./nav";
 import { PeekProvider } from "./peek";
 import { ThemeProvider, ThemeSegment, ThemeToggle } from "./theme";
 import { fmtAgo } from "@/lib/format";
+import { WEEKLY_UPDATE_LABEL, fmtNextWeeklyUpdate } from "@/lib/schedule";
 
 export { NAV };
 
@@ -475,9 +476,8 @@ function QueueWidget({ status }: { status: QueueStatus | null }) {
       </AnimatePresence>
       <div className="mt-1 truncate pl-5.5 text-[11.5px] text-ink-3">{status.lastScrape ? `Última coleta ${fmtAgo(status.lastScrape)}` : "Nenhuma coleta real ainda"}</div>
       {!status.workerHost && (
-        <div className="truncate pl-5.5 text-[11.5px] text-ink-3" title="Coleta, transcrição e análise rodam no Mac (npm run cc -- work e Claude Code)">
-          {status.workerLastSeenAt ? `Mac processou ${fmtAgo(status.workerLastSeenAt)}` : "O Mac ainda não processou a fila"}
-          {busy ? " · roda na próxima vez" : ""}
+        <div className="truncate pl-5.5 text-[11.5px] text-ink-3" title={`Atualização semanal na nuvem (${WEEKLY_UPDATE_LABEL}): coleta, análise, resumo e 10 roteiros`}>
+          {status.workerLastSeenAt ? `Atualizado ${fmtAgo(status.workerLastSeenAt)}` : "Ainda não atualizado"} · próxima {fmtNextWeeklyUpdate().replace("segunda, ", "seg. ")}
         </div>
       )}
     </div>

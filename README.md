@@ -116,6 +116,8 @@ Equipe ──(senha)──▶ Vercel: dashboard, padrões, roteiros, pedidos
 5. `npm run db:setup` (cria as tabelas no Turso), e `npm run db:copy-to-cloud` se já houver dados locais.
 6. `npm run cc -- work` (grava as imagens comprimidas no banco) e `npx vercel --prod`.
 
+**Deploy automático:** o projeto na Vercel está conectado ao GitHub (`lucasschunemann/HitzzDash`). Cada push na `main` publica em produção; outros branches geram preview. Não é preciso rodar `vercel deploy`.
+
 Dica: crie o banco Turso na mesma região das funções da Vercel, para as páginas carregarem mais rápido.
 
 Os limites do plano Hobby (banda, execuções) cobrem com folga o uso de uma equipe pequena. Os termos da Vercel descrevem o Hobby como uso pessoal/não comercial; se a empresa quiser formalizar, é só trocar para o Pro, sem mudar código.

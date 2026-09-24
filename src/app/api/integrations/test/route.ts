@@ -7,6 +7,7 @@ import { getSettings } from "@/server/settings";
 import { sql } from "drizzle-orm";
 import { hasFfmpeg, run } from "@/server/media";
 import { ownerOnly } from "@/server/role";
+import { fmtNextWeeklyUpdate } from "@/lib/schedule";
 
 /** Testa cada integração com uma chamada barata. Nunca devolve o valor da chave. */
 export async function POST(req: Request) {
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
     if (key === "password") return Response.json({ ok: Boolean(process.env.DASHBOARD_PASSWORD), message: process.env.DASHBOARD_PASSWORD ? "Senha definida." : "DASHBOARD_PASSWORD ausente." });
     if (key === "worker") {
       const s = await getSettings();
-      return Response.json({ ok: Boolean(s.workerLastSeenAt), message: s.workerLastSeenAt ? `O Mac processou em ${new Date(s.workerLastSeenAt).toLocaleString("pt-BR")}.` : "O Mac ainda não rodou npm run cc -- work." });
+      return Response.json({ ok: Boolean(s.workerLastSeenAt), message: s.workerLastSeenAt ? `Última atualização em ${new Date(s.workerLastSeenAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}. Próxima: ${fmtNextWeeklyUpdate()}.` : `Ainda não rodou. Próxima: ${fmtNextWeeklyUpdate()}.` });
     }
     if (key === "transcriber") {
       if (transcriberMode() === "local") {

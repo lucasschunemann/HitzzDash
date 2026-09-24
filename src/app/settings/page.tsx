@@ -14,6 +14,7 @@ import { hasWhisper, WHISPER_MODEL_NAME } from "@/server/whisper";
 import { isVercel } from "@/server/host";
 import { isRemoteDb } from "@/db";
 import { fmtAgo } from "@/lib/format";
+import { WEEKLY_UPDATE_LABEL, fmtNextWeeklyUpdate } from "@/lib/schedule";
 import { hasFfmpeg } from "@/server/media";
 import { getSettings } from "@/server/settings";
 import { accountStats } from "@/server/accounts";
@@ -49,16 +50,16 @@ export default async function SettingsPage() {
   const ff = await hasFfmpeg();
   const settings = await getSettings();
   const cloud: Integration[] = [
-    { key: "database", label: "Banco compartilhado (Turso)", env: "DATABASE_URL", purpose: "O mesmo banco que o Mac usa para gravar", configured: isRemoteDb(), detail: "" },
+    { key: "database", label: "Banco compartilhado (Turso)", env: "DATABASE_URL", purpose: "O mesmo banco em que a atualização semanal grava", configured: isRemoteDb(), detail: "" },
     { key: "images", label: "Imagens no banco", env: null, purpose: "Capas, frames e avatares comprimidos em WebP, guardados no Turso e servidos pelo próprio site", configured: isRemoteDb(), detail: "" },
     { key: "password", label: "Senha da equipe", env: "DASHBOARD_PASSWORD", purpose: "Login do dashboard", configured: Boolean(process.env.DASHBOARD_PASSWORD), detail: "" },
     {
       key: "worker",
-      label: "Processamento no Mac",
+      label: "Atualização semanal (Claude Code na nuvem)",
       env: null,
-      purpose: "Coleta, Whisper, frames e análise rodam no Mac: npm run cc -- work e “processe os pendentes do Hitzz” no Claude Code",
+      purpose: `Coleta, Whisper, frames, análise, resumo e 10 roteiros base: rotina do Claude Code na nuvem, ${WEEKLY_UPDATE_LABEL}`,
       configured: Boolean(settings.workerLastSeenAt),
-      detail: settings.workerLastSeenAt ? `última execução ${fmtAgo(settings.workerLastSeenAt)}` : "ainda não rodou",
+      detail: `${settings.workerLastSeenAt ? `última ${fmtAgo(settings.workerLastSeenAt)}` : "ainda não rodou"} · próxima ${fmtNextWeeklyUpdate()}`,
     },
   ];
   const tMode = transcriberMode();
@@ -67,7 +68,7 @@ export default async function SettingsPage() {
   const integrations: Integration[] = [
     { key: "apify", label: ENV_VARS.apify.label, env: ENV_VARS.apify.env, purpose: ENV_VARS.apify.purpose, configured: hasKey("apify"), detail: "actors apify/instagram-reel-scraper e instagram-profile-scraper · plano gratuito tem crédito mensal" },
     tMode === "local"
-      ? { key: "transcriber", label: "Transcrição: Whisper local (grátis)", env: null, purpose: "Roda no seu Mac, sem custo", configured: whisper, detail: whisper ? WHISPER_MODEL_NAME : "rode npm run setup:whisper" }
+      ? { key: "transcriber", label: "Transcrição: Whisper local (grátis)", env: null, purpose: "Roda no worker (rotina na nuvem ou Mac), sem custo", configured: whisper, detail: whisper ? WHISPER_MODEL_NAME : "rode npm run setup:whisper" }
       : { key: "transcriber", label: "Transcrição: ElevenLabs Scribe", env: ENV_VARS.elevenlabs.env, purpose: "API paga", configured: hasKey("elevenlabs"), detail: `modelo ${SCRIBE_MODEL}, português` },
     aMode === "claude_code"
       ? { key: "analyzer", label: "Análise e roteiros: Claude Code (grátis)", env: null, purpose: "Feitos numa sessão do Claude Code com a sua assinatura; sem chave de API", configured: true, detail: "diga “processe os pendentes do Hitzz” no Claude Code" }

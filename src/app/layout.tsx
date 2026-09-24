@@ -31,7 +31,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const missing: { env: string; label: string; purpose: string }[] = [];
   const vercel = isVercel();
   if (vercel) {
-    if (!isRemoteDb()) missing.push({ env: "DATABASE_URL", label: "Turso", purpose: "Banco compartilhado com o Mac" });
+    if (!isRemoteDb()) missing.push({ env: "DATABASE_URL", label: "Turso", purpose: "Banco compartilhado com a atualização semanal" });
     if (!process.env.DASHBOARD_PASSWORD) missing.push({ env: "DASHBOARD_PASSWORD", label: "Senha", purpose: "Login da equipe" });
   } else {
     if (!hasKey("apify")) missing.push(ENV_VARS.apify);
