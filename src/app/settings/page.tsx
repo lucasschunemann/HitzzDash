@@ -11,7 +11,6 @@ import { AddAccountForm, AccountTable } from "@/components/account-manager";
 import { ENV_VARS, hasKey, anthropicModel, transcriberMode, analyzerMode } from "@/server/env";
 import { hasWhisper, WHISPER_MODEL_NAME } from "@/server/whisper";
 import { isVercel } from "@/server/host";
-import { hasBlob } from "@/server/storage";
 import { isRemoteDb } from "@/db";
 import { fmtAgo } from "@/lib/format";
 import { hasFfmpeg } from "@/server/media";
@@ -28,7 +27,7 @@ export default async function SettingsPage() {
   const settings = await getSettings();
   const cloud: Integration[] = [
     { key: "database", label: "Banco compartilhado (Turso)", env: "DATABASE_URL", purpose: "O mesmo banco que o Mac usa para gravar", configured: isRemoteDb(), detail: "" },
-    { key: "blob", label: "Imagens (Vercel Blob)", env: "BLOB_READ_WRITE_TOKEN", purpose: "Capas, frames e avatares enviados pelo Mac", configured: hasBlob(), detail: "" },
+    { key: "images", label: "Imagens no banco", env: null, purpose: "Capas, frames e avatares comprimidos em WebP, guardados no Turso e servidos pelo próprio site", configured: isRemoteDb(), detail: "" },
     { key: "password", label: "Senha da equipe", env: "DASHBOARD_PASSWORD", purpose: "Login do dashboard", configured: Boolean(process.env.DASHBOARD_PASSWORD), detail: "" },
     {
       key: "worker",

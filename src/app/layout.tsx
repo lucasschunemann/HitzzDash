@@ -7,7 +7,6 @@ import { THEME_SCRIPT } from "@/lib/theme-script";
 import { ENV_VARS, hasKey, transcriberMode } from "@/server/env";
 import { hasWhisper } from "@/server/whisper";
 import { isVercel } from "@/server/host";
-import { hasBlob } from "@/server/storage";
 import { isRemoteDb } from "@/db";
 import { hasFfmpeg } from "@/server/media";
 
@@ -33,12 +32,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   if (vercel) {
     if (!isRemoteDb()) missing.push({ env: "DATABASE_URL", label: "Turso", purpose: "Banco compartilhado com o Mac" });
     if (!process.env.DASHBOARD_PASSWORD) missing.push({ env: "DASHBOARD_PASSWORD", label: "Senha", purpose: "Login da equipe" });
-    if (!hasBlob()) missing.push({ env: "BLOB_READ_WRITE_TOKEN", label: "Vercel Blob", purpose: "Capas e frames no site" });
   } else {
     if (!hasKey("apify")) missing.push(ENV_VARS.apify);
     if (transcriberMode() === "local" && !(await hasWhisper())) missing.push({ env: "npm run setup:whisper", label: "Whisper", purpose: "Transcrição local gratuita" });
     if (transcriberMode() === "elevenlabs" && !hasKey("elevenlabs")) missing.push(ENV_VARS.elevenlabs);
-    if (isRemoteDb() && !hasBlob()) missing.push({ env: "BLOB_READ_WRITE_TOKEN", label: "Vercel Blob", purpose: "Sem ele as capas e frames não aparecem no site da Vercel" });
   }
   const ffmpeg = vercel ? true : await hasFfmpeg();
   return (

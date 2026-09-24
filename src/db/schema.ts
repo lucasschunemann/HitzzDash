@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real, index, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, real, blob, index, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 /** Grupo da conta: define como ela entra nas comparações. */
 export type AccountGroup = "competitor" | "reference" | "own";
@@ -18,7 +18,7 @@ export const accounts = sqliteTable(
     postsCount: integer("posts_count"),
     verified: integer("verified", { mode: "boolean" }),
     avatarPath: text("avatar_path"),
-    /** URL pública (Vercel Blob) para o dashboard na nuvem. */
+    /** URL da cópia comprimida guardada no banco (tabela media), servida por /api/img. */
     avatarUrl: text("avatar_url"),
     active: integer("active", { mode: "boolean" }).notNull().default(true),
     isDemo: integer("is_demo", { mode: "boolean" }).notNull().default(false),
@@ -69,7 +69,7 @@ export const videos = sqliteTable(
     locationName: text("location_name"),
     productType: text("product_type"),
     thumbnailPath: text("thumbnail_path"),
-    /** URL pública (Vercel Blob) da capa, para o dashboard na nuvem. */
+    /** URL da capa comprimida guardada no banco (tabela media), servida por /api/img. */
     thumbnailUrl: text("thumbnail_url"),
     remoteThumbnailUrl: text("remote_thumbnail_url"),
     remoteVideoUrl: text("remote_video_url"),
@@ -126,12 +126,25 @@ export const transcripts = sqliteTable("transcripts", {
   createdAt: integer("created_at").notNull(),
 });
 
-/** path = arquivo local no Mac; url = cópia pública no Vercel Blob (quando configurado). */
+/** path = arquivo local do worker; url = cópia comprimida no banco (tabela media, servida por /api/img). */
 export type FrameRef = { path: string; t: number; url?: string | null };
 
 export const frames = sqliteTable("frames", {
   videoId: text("video_id").primaryKey(),
   items: text("items", { mode: "json" }).$type<FrameRef[]>().notNull(),
+  createdAt: integer("created_at").notNull(),
+});
+
+/**
+ * Imagens do dashboard (capas, frames-chave, avatares) comprimidas em WebP e guardadas no próprio
+ * banco. Assim o site na Vercel exibe tudo sem depender de arquivos do Mac nem de um storage à parte.
+ */
+export const media = sqliteTable("media", {
+  key: text("key").primaryKey(),
+  mime: text("mime").notNull(),
+  data: blob("data", { mode: "buffer" }).notNull(),
+  bytes: integer("bytes").notNull(),
+  hash: text("hash").notNull(),
   createdAt: integer("created_at").notNull(),
 });
 

@@ -16,7 +16,7 @@ import { LlmError } from "./llm";
 import { bump } from "./events";
 import { loadVideos } from "./data";
 import { hasKey, transcriberMode, analyzerMode } from "./env";
-import { uploadMedia, hasBlob } from "./storage";
+import { storeImage, isStoredUrl, frameKey } from "./storage";
 import { transcribeLocal, hasWhisper, WHISPER_MODEL_NAME, WhisperError } from "./whisper";
 
 type Stage = "media" | "transcript" | "frames" | "analysis";
@@ -85,7 +85,7 @@ async function stageMedia(videoId: string, progress: (m: string) => void) {
       else if (retryableOf(e)) throw new StageError("media", (e as Error).message, true);
     }
     if (fs.existsSync(dest)) {
-      const url = await uploadMedia(dest, `thumbs/${videoId}.jpg`).catch(() => null);
+      const url = await storeImage(dest, `thumbs/${videoId}`, "thumb").catch(() => null);
       await db.update(schema.videos).set({ thumbnailPath: mediaRel(dest), thumbnailUrl: url }).where(eq(schema.videos.id, videoId)).run();
     }
   }
@@ -167,7 +167,7 @@ async function stageFrames(videoId: string, progress: (m: string) => void) {
   const file = mediaAbs(v.videoPath);
   const info = await probe(file);
   const items = await extractFrames(file, videoId, v.durationSec ?? info.duration);
-  for (const f of items) f.url = await uploadMedia(mediaAbs(f.path), `frames/${f.path.split("/").slice(-2).join("-")}`).catch(() => null);
+  for (const f of items) f.url = await storeImage(mediaAbs(f.path), frameKey(f.path), "frame").catch(() => null);
   await db.insert(schema.frames).values({ videoId, items, createdAt: Date.now() }).onConflictDoNothing().run();
   if (!v.durationSec && info.duration) await db.update(schema.videos).set({ durationSec: info.duration }).where(eq(schema.videos.id, videoId)).run();
   await setStage(videoId, "frames", "done");
@@ -288,39 +288,49 @@ export async function cleanupVideos(keepDays: number) {
 }
 
 /**
- * Envia ao Vercel Blob as imagens locais que ainda não têm cópia na nuvem (capas, frames, avatares).
- * Útil ao configurar o Blob depois de já ter coletado vídeos.
+ * Garante que capas, frames e avatares tenham cópia comprimida no banco (tabela media), para o
+ * dashboard na nuvem exibir. Também migra o que ainda aponta para o antigo Vercel Blob.
+ * Se o arquivo local sumiu, tenta baixar a capa de novo do Instagram.
  */
-export async function syncMediaToBlob(log: (m: string) => void = () => {}) {
-  if (!hasBlob()) return { thumbs: 0, frames: 0, avatars: 0 };
+export async function syncMediaToDb(log: (m: string) => void = () => {}) {
   let thumbs = 0;
   let framesN = 0;
   let avatars = 0;
-  for (const v of await db.select().from(schema.videos).all()) {
-    if (!v.thumbnailPath || v.thumbnailUrl || v.isDemo) continue;
-    const url = await uploadMedia(mediaAbs(v.thumbnailPath), `thumbs/${v.id}.jpg`).catch(() => null);
-    if (url) {
-      await db.update(schema.videos).set({ thumbnailUrl: url }).where(eq(schema.videos.id, v.id)).run();
-      thumbs++;
+  const pool = async <T,>(items: T[], fn: (x: T) => Promise<void>, n = 6) => {
+    let i = 0;
+    await Promise.all(Array.from({ length: n }, async () => {
+      while (i < items.length) await fn(items[i++]).catch(() => {});
+    }));
+  };
+
+  const vids = (await db.select().from(schema.videos).all()).filter((v) => !v.isDemo && !isStoredUrl(v.thumbnailUrl));
+  await pool(vids, async (v) => {
+    let local = v.thumbnailPath ? mediaAbs(v.thumbnailPath) : path.join(THUMBS_DIR, `${v.id}.jpg`);
+    if (!fs.existsSync(local) && v.remoteThumbnailUrl) {
+      local = path.join(THUMBS_DIR, `${v.id}.jpg`);
+      await download(v.remoteThumbnailUrl, local, "image").catch(() => {});
     }
-  }
-  for (const fr of await db.select().from(schema.frames).all()) {
-    if (fr.items.every((f) => f.url)) continue;
+    const url = await storeImage(local, `thumbs/${v.id}`, "thumb");
+    await db.update(schema.videos).set({ thumbnailUrl: url, ...(url && !v.thumbnailPath ? { thumbnailPath: mediaRel(local) } : {}) }).where(eq(schema.videos.id, v.id)).run();
+    if (url) thumbs++;
+  });
+
+  const frs = (await db.select().from(schema.frames).all()).filter((fr) => !fr.items.every((f) => isStoredUrl(f.url)));
+  await pool(frs, async (fr) => {
     const items = [];
-    for (const f of fr.items) items.push({ ...f, url: f.url ?? (await uploadMedia(mediaAbs(f.path), `frames/${f.path.split("/").slice(-2).join("-")}`).catch(() => null)) });
+    for (const f of fr.items) items.push({ ...f, url: isStoredUrl(f.url) ? f.url : await storeImage(mediaAbs(f.path), frameKey(f.path), "frame").catch(() => null) });
     await db.update(schema.frames).set({ items }).where(eq(schema.frames.videoId, fr.videoId)).run();
     framesN++;
-  }
+  }, 3);
+
   for (const a of await db.select().from(schema.accounts).all()) {
-    if (!a.avatarPath || a.avatarUrl) continue;
-    const url = await uploadMedia(mediaAbs(a.avatarPath), `avatars/${a.handle}.jpg`).catch(() => null);
-    if (url) {
-      await db.update(schema.accounts).set({ avatarUrl: url }).where(eq(schema.accounts.id, a.id)).run();
-      avatars++;
-    }
+    if (!a.avatarPath || isStoredUrl(a.avatarUrl)) continue;
+    const url = await storeImage(mediaAbs(a.avatarPath), `avatars/${a.handle}`, "avatar").catch(() => null);
+    await db.update(schema.accounts).set({ avatarUrl: url }).where(eq(schema.accounts.id, a.id)).run();
+    if (url) avatars++;
   }
   if (thumbs + framesN + avatars) {
-    log(`Blob: ${thumbs} capas, ${framesN} vídeos com frames, ${avatars} avatares enviados`);
+    log(`Imagens no banco: ${thumbs} capas, ${framesN} vídeos com frames, ${avatars} avatares`);
     await bump("videos");
   }
   return { thumbs, frames: framesN, avatars };

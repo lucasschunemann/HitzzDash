@@ -1,23 +1,52 @@
 /**
- * Imagens públicas do dashboard (capas, frames-chave, avatares). No Mac elas ficam em data/media;
- * com BLOB_READ_WRITE_TOKEN também são enviadas ao Vercel Blob, para o dashboard na Vercel exibir.
- * O vídeo MP4 nunca sai do Mac.
+ * Imagens do dashboard (capas, frames-chave, avatares). O worker guarda o original em data/media e
+ * uma cópia WebP comprimida na tabela `media` do banco (Turso). O site, na Vercel ou local, serve
+ * essa cópia por /api/img/<chave>. Não depende de storage externo nem de arquivos do Mac.
+ * O vídeo MP4 nunca sai do worker.
  */
+import crypto from "node:crypto";
 import fs from "node:fs";
-import path from "node:path";
-import { put } from "@vercel/blob";
+import { eq } from "drizzle-orm";
+import { db, schema } from "@/db";
 
-export const hasBlob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim());
+export type ImageKind = "thumb" | "frame" | "avatar";
 
-const TYPES: Record<string, string> = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp" };
+/** Largura máxima e qualidade por tipo: o suficiente para a tela, pequeno para o banco. */
+const SPEC: Record<ImageKind, { width: number; quality: number }> = {
+  thumb: { width: 360, quality: 72 },
+  frame: { width: 540, quality: 70 },
+  avatar: { width: 160, quality: 78 },
+};
 
-/** Envia um arquivo local ao Blob e devolve a URL pública (ou null sem Blob configurado). */
-export async function uploadMedia(localFile: string, key: string): Promise<string | null> {
-  if (!hasBlob() || !fs.existsSync(localFile)) return null;
-  const res = await put(`hitzz/${key}`, fs.readFileSync(localFile), {
-    access: "public",
-    addRandomSuffix: true,
-    contentType: TYPES[path.extname(localFile).toLowerCase()] ?? "application/octet-stream",
-  });
-  return res.url;
+export const IMG_PREFIX = "/api/img/";
+
+/** A URL aponta para a cópia no banco (e não para um arquivo local ou storage antigo). */
+export const isStoredUrl = (url: string | null | undefined) => Boolean(url?.startsWith(IMG_PREFIX));
+
+export const imageUrl = (key: string, hash: string) => `${IMG_PREFIX}${key}?v=${hash}`;
+
+/**
+ * Comprime um arquivo local e grava no banco sob `key` (ex.: thumbs/<id>). Devolve a URL servida
+ * pelo dashboard, ou null se o arquivo não existir ou não for uma imagem válida.
+ */
+export async function storeImage(localFile: string, key: string, kind: ImageKind): Promise<string | null> {
+  if (!fs.existsSync(localFile)) return null;
+  const { default: sharp } = await import("sharp");
+  const { width, quality } = SPEC[kind];
+  const data = await sharp(localFile).rotate().resize({ width, withoutEnlargement: true }).webp({ quality, effort: 4 }).toBuffer();
+  const hash = crypto.createHash("sha1").update(data).digest("hex").slice(0, 10);
+  const row = { mime: "image/webp", data, bytes: data.length, hash, createdAt: Date.now() };
+  await db
+    .insert(schema.media)
+    .values({ key, ...row })
+    .onConflictDoUpdate({ target: schema.media.key, set: row })
+    .run();
+  return imageUrl(key, hash);
 }
+
+export async function readImage(key: string) {
+  return db.select({ mime: schema.media.mime, data: schema.media.data, hash: schema.media.hash }).from(schema.media).where(eq(schema.media.key, key)).get();
+}
+
+/** Chave estável de um frame a partir do caminho local (frames/<videoId>/<arquivo>). */
+export const frameKey = (localPath: string) => `frames/${localPath.split("/").slice(-2).join("-").replace(/\.\w+$/, "")}`;

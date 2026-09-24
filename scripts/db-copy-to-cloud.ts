@@ -1,7 +1,7 @@
 /**
  * Copia o banco local (data/hitzz.db) para o banco na nuvem (DATABASE_URL/TURSO_DATABASE_URL).
  * Não apaga nada no destino: linhas que já existem (mesma chave) são mantidas.
- * Depois rode `npm run cc -- work` para enviar capas e frames ao Vercel Blob.
+ * Depois rode `npm run cc -- work` para gravar as capas e os frames comprimidos no banco.
  *   npm run db:copy-to-cloud
  */
 import { loadEnvConfig } from "@next/env";
@@ -48,7 +48,7 @@ async function main() {
     }
     console.log(`✓ ${name}: ${n} linha(s)`);
   }
-  console.log("Pronto. Agora rode: npm run cc -- work (envia as imagens ao Blob)");
+  console.log("Pronto. Agora rode: npm run cc -- work (grava as imagens no banco)");
 }
 main().then(
   () => process.exit(0),

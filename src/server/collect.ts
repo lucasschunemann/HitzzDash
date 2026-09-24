@@ -5,7 +5,7 @@ import { db, schema } from "@/db";
 import { AVATARS_DIR, FRAMES_DIR, mediaAbs, mediaRel } from "@/lib/paths";
 import { scrapeProfile, scrapeReels, normalizeReel } from "./apify";
 import { download } from "./media";
-import { uploadMedia } from "./storage";
+import { storeImage } from "./storage";
 import { bump, notify } from "./events";
 import { getSettings } from "./settings";
 import { ensureProcessingRow } from "./pipeline";
@@ -43,7 +43,7 @@ export async function collectAccount(accountId: number, progress: (m: string) =>
         const dest = path.join(AVATARS_DIR, `${acc.handle}.jpg`);
         await download(pic, dest, "image");
         avatarPath = mediaRel(dest);
-        avatarUrl = (await uploadMedia(dest, `avatars/${acc.handle}.jpg`).catch(() => null)) ?? avatarUrl;
+        avatarUrl = (await storeImage(dest, `avatars/${acc.handle}`, "avatar").catch(() => null)) ?? avatarUrl;
       } catch {}
     }
     await db.update(schema.accounts)

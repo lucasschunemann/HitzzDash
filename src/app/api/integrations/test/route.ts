@@ -3,7 +3,6 @@ import { hasKey, anthropicModel, ENV_VARS, transcriberMode, analyzerMode } from 
 import { hasWhisper, WHISPER_MODEL_NAME } from "@/server/whisper";
 import { ccSummary } from "@/server/claude-code";
 import { db, isRemoteDb } from "@/db";
-import { hasBlob } from "@/server/storage";
 import { getSettings } from "@/server/settings";
 import { sql } from "drizzle-orm";
 import { hasFfmpeg, run } from "@/server/media";
@@ -21,7 +20,11 @@ export async function POST(req: Request) {
       await db.run(sql`select 1`);
       return Response.json({ ok: isRemoteDb(), message: isRemoteDb() ? "Conectado ao banco na nuvem." : "Usando o arquivo local (DATABASE_URL não definida)." });
     }
-    if (key === "blob") return Response.json({ ok: hasBlob(), message: hasBlob() ? "Token do Blob presente." : "BLOB_READ_WRITE_TOKEN ausente." });
+    if (key === "images") {
+      const r = await db.run(sql`select count(*) as n, coalesce(sum(bytes), 0) as b from media`);
+      const row = r.rows[0] as unknown as { n: number; b: number };
+      return Response.json({ ok: Number(row.n) > 0, message: `${row.n} imagens no banco (${(Number(row.b) / 1_048_576).toFixed(1)} MB).` });
+    }
     if (key === "password") return Response.json({ ok: Boolean(process.env.DASHBOARD_PASSWORD), message: process.env.DASHBOARD_PASSWORD ? "Senha definida." : "DASHBOARD_PASSWORD ausente." });
     if (key === "worker") {
       const s = await getSettings();

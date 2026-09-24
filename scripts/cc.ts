@@ -35,15 +35,20 @@ async function main() {
     case "work": {
       const boot = await import("../src/server/boot");
       const queue = await import("../src/server/queue");
-      const { syncMediaToBlob } = await import("../src/server/pipeline");
+      const { syncMediaToDb } = await import("../src/server/pipeline");
       boot.registerHandlers();
       await boot.schedulerTick();
       const pending = await boot.enqueuePendingProcessing({});
       if (pending) console.log(`${pending} vídeo(s) com etapas pendentes voltaram para a fila`);
       const res = await queue.drainQueue((m) => console.log(`[fila] ${m}`), { maxMinutes: Number(arg("minutes") ?? 60) });
-      await syncMediaToBlob((m) => console.log(m));
+      await syncMediaToDb((m) => console.log(m));
       const s = await cc.ccSummary();
       out({ jobs_concluidos: res.done, falhas: res.failed, para_depois: res.retryLater, videos_aguardando_analise: s.videos, pedidos_de_roteiro: s.scripts });
+      break;
+    }
+    case "sync-media": {
+      const { syncMediaToDb } = await import("../src/server/pipeline");
+      out(await syncMediaToDb((m) => console.log(m)));
       break;
     }
     case "status": {
@@ -112,7 +117,7 @@ async function main() {
       out({ ok: true, ...await cc.saveScriptRequest(Number(a1), a2) });
       break;
     default:
-      out("Comandos: work, status, guides, videos, save-analysis, digest, save-digest, scripts, new-script, save-script");
+      out("Comandos: work, sync-media, status, guides, videos, save-analysis, digest, save-digest, scripts, new-script, save-script");
   }
 }
 

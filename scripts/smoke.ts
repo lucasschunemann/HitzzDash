@@ -14,7 +14,7 @@ import { execFileSync } from "node:child_process";
 const keep = process.argv.includes("--keep");
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), "hitzz-smoke-"));
 process.env.DATA_DIR = path.join(dir, "data");
-// isolado: nunca usa o banco/Blob da nuvem nem chaves pagas, mesmo que estejam no ambiente
+// isolado: nunca usa o banco da nuvem nem chaves pagas, mesmo que estejam no ambiente
 for (const k of ["DATABASE_URL", "TURSO_DATABASE_URL", "DATABASE_AUTH_TOKEN", "TURSO_AUTH_TOKEN", "BLOB_READ_WRITE_TOKEN", "ELEVENLABS_API_KEY", "ANTHROPIC_API_KEY"]) delete process.env[k];
 
 async function main() {

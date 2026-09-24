@@ -64,7 +64,7 @@ Produção local: `npm run build && npm start`.
 | `npm test` | Testes (score de outlier, padrões, normalização do Apify, detecção de fala) |
 | `npm run smoke` | Teste de ponta a ponta do pipeline de mídia sem APIs pagas (ver abaixo) |
 | `npm run setup:whisper` | Instala o whisper.cpp e baixa os modelos em `models/` |
-| `npm run cc -- work` | Worker do Mac: roda a fila (coletas, Whisper, frames) e envia imagens ao Blob |
+| `npm run cc -- work` | Worker do Mac: roda a fila (coletas, Whisper, frames) e grava as imagens comprimidas no banco |
 | `npm run cc -- status` | CLI do modo Claude Code (usado pela skill `hitzz`) |
 | `npm run db:setup` | Migra o banco (local ou Turso) e carrega a demo se estiver vazio |
 | `npm run db:copy-to-cloud` | Copia o banco local do Mac para o Turso |
@@ -99,7 +99,7 @@ Equipe ──(senha)──▶ Vercel: dashboard, padrões, roteiros, pedidos
                           │   lê e grava
                           ▼
                     Turso (SQLite na nuvem) ◀── Mac: coleta (Apify), Whisper, frames,
-                    Vercel Blob (imagens)   ◀──      análise no Claude Code
+                    dados + imagens WebP         análise no Claude Code
 ```
 
 - Na Vercel não há disco nem processo contínuo. "Coletar", "Atualizar agora" e "Reprocessar" apenas **enfileiram** o trabalho no banco. O Mac executa com `npm run cc -- work`, ou dizendo "processe os pendentes do Hitzz" no Claude Code. A barra lateral mostra quando o Mac processou pela última vez.
@@ -110,15 +110,15 @@ Equipe ──(senha)──▶ Vercel: dashboard, padrões, roteiros, pedidos
 ### Passo a passo
 
 1. `npx vercel login`, depois `npx vercel` na pasta do projeto (cria o projeto e faz o primeiro deploy).
-2. No painel da Vercel, em **Storage**: crie um banco **Turso** (Marketplace, plano grátis) e um **Blob store**, e conecte os dois ao projeto. A Vercel cria `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` e `BLOB_READ_WRITE_TOKEN`.
+2. No painel da Vercel, em **Storage**: crie um banco **Turso** (Marketplace, plano grátis) e conecte ao projeto. A Vercel cria `TURSO_DATABASE_URL` e `TURSO_AUTH_TOKEN`.
 3. Em **Settings → Environment Variables**, adicione `DASHBOARD_PASSWORD`.
-4. No Mac: `npx vercel env pull .env.vercel` e copie essas quatro variáveis para o `.env` (o Mac precisa escrever no mesmo banco e no mesmo Blob).
+4. No Mac: `npx vercel env pull .env.vercel` e copie essas variáveis para o `.env` (o Mac precisa escrever no mesmo banco).
 5. `npm run db:setup` (cria as tabelas no Turso), e `npm run db:copy-to-cloud` se já houver dados locais.
-6. `npm run cc -- work` (envia as imagens ao Blob) e `npx vercel --prod`.
+6. `npm run cc -- work` (grava as imagens comprimidas no banco) e `npx vercel --prod`.
 
 Dica: crie o banco Turso na mesma região das funções da Vercel, para as páginas carregarem mais rápido.
 
-Os limites do plano Hobby (banda, execuções, armazenamento do Blob) cobrem com folga o uso de uma equipe pequena. Os termos da Vercel descrevem o Hobby como uso pessoal/não comercial; se a empresa quiser formalizar, é só trocar para o Pro, sem mudar código.
+Os limites do plano Hobby (banda, execuções) cobrem com folga o uso de uma equipe pequena. Os termos da Vercel descrevem o Hobby como uso pessoal/não comercial; se a empresa quiser formalizar, é só trocar para o Pro, sem mudar código.
 
 ## Decisões de arquitetura
 
@@ -131,6 +131,7 @@ Os limites do plano Hobby (banda, execuções, armazenamento do Blob) cobrem com
 | **Radix + Motion + cmdk + sonner** | Primitivas acessíveis (teclado, foco, ARIA), animações com spring, menu Cmd+K e toasts. |
 | **Gráficos em SVG próprio** | Controle total do visual (marcas finas, desenho na entrada, tooltip), sem biblioteca pesada. |
 | **Linguagem visual Notion, preto e branco** | Papel branco (ou grafite `#191919` no escuro), tinta quase preta, cinzas quentes, bordas finíssimas e nada de sombra em blocos. Cor só em dados (faixas de desempenho, gráficos) e estados. Tokens em `src/app/globals.css`; componentes-base em `src/components/ui.tsx`. |
+| **Imagens no próprio banco** | Capas, frames e avatares viram WebP comprimidos (~20 KB) na tabela `media` do Turso e são servidos por `/api/img` com cache imutável, atrás do login. Substituiu o Vercel Blob, cujo plano Hobby suspendeu a loja ao passar de ~2 mil uploads no mês. O original continua só no worker. |
 | **Tema claro/escuro/sistema** | `data-theme` no `<html>`, aplicado por um script no `<head>` antes da pintura (sem piscar) e salvo no navegador (`hitzz.theme`). Troca pelo botão do topo, pela barra lateral, por `⌘K` ou em Configurações → Aparência. |
 | **Três breakpoints** | Celular (< 768 px): barra superior + tab bar. Tablet (768–1023 px): barra lateral vira trilho de ícones com tooltips. Desktop (≥ 1024 px): barra lateral completa, recolhível com `⌘\`. Margens de página `px-page` (20/40/72 px). |
 | **Zod + structured outputs** | Toda saída do Claude é JSON validado por schema (`output_config.format`) e revalidado no servidor. |
