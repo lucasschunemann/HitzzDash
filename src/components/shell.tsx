@@ -14,6 +14,7 @@ import { CommandMenu } from "./command-menu";
 import { NAV, navFor } from "./nav";
 import { PeekProvider } from "./peek";
 import { ThemeProvider, ThemeSegment, ThemeToggle } from "./theme";
+import { Onca, Wordmark } from "./brand";
 import { fmtAgo } from "@/lib/format";
 import { WEEKLY_UPDATE_LABEL, fmtNextWeeklyUpdate } from "@/lib/schedule";
 
@@ -196,12 +197,13 @@ export function Shell({ children, status }: { children: ReactNode; status: Shell
                 className="group/side md:max-lg:!w-[60px] sticky top-0 z-30 hidden h-dvh shrink-0 flex-col overflow-hidden border-r border-hairline bg-sidebar md:flex"
                 aria-label="Navegação principal"
               >
-                <div className={cn("flex h-12 shrink-0 items-center gap-1 px-2", collapsed && "justify-center")}>
-                  <Link href="/" className={cn("flex min-w-0 flex-1 items-center gap-2.5 rounded-[6px] px-1.5 py-1 transition-colors hover:bg-hover", collapsed && "flex-none")} aria-label="UseHitzz, início">
+                <div className={cn("flex h-[72px] shrink-0 items-center gap-1 px-2", collapsed && "justify-center")}>
+                  <Link href="/" className={cn("group/logo flex min-w-0 flex-1 items-center gap-2 rounded-[10px] px-1.5 py-1.5 transition-colors hover:bg-hover", collapsed && "flex-none")} aria-label="UseHitzz, início">
                     <Logo />
                     {!collapsed && (
-                      <span className="min-w-0 leading-tight">
-                        <span className="block truncate text-[14px] font-semibold text-ink">UseHitzz</span>
+                      <span className="flex min-w-0 flex-col leading-none">
+                        <Wordmark className="h-[26px] text-ink" />
+                        <span className="mt-1.5 truncate text-[11px] font-medium text-ink-3">Inteligência de Reels</span>
                       </span>
                     )}
                   </Link>
@@ -234,7 +236,7 @@ export function Shell({ children, status }: { children: ReactNode; status: Shell
                     ))}
                     {status.auth && !status.owner && (
                       <Tip content={collapsed ? "Entrar como administrador" : null} side="right">
-                        <a href="/api/logout?modo=admin" className={cn("flex h-[30px] items-center gap-2.5 rounded-[6px] px-2 text-[14px] text-ink-2 transition-colors hover:bg-hover hover:text-ink", collapsed && "justify-center px-0")}>
+                        <a href="/api/logout?modo=admin" className={cn("flex h-[34px] items-center gap-2.5 rounded-full px-2.5 text-[14px] text-ink-2 transition-colors hover:bg-hover hover:text-ink", collapsed && "justify-center px-0")}>
                           <KeyRound className="size-[18px] shrink-0 text-ink-3" />
                           {!collapsed && "Entrar como administrador"}
                         </a>
@@ -242,7 +244,7 @@ export function Shell({ children, status }: { children: ReactNode; status: Shell
                     )}
                     {status.auth && (
                       <Tip content={collapsed ? "Sair" : null} side="right">
-                        <a href="/api/logout" className={cn("flex h-[30px] items-center gap-2.5 rounded-[6px] px-2 text-[14px] text-ink-2 transition-colors hover:bg-hover hover:text-ink", collapsed && "justify-center px-0")}>
+                        <a href="/api/logout" className={cn("flex h-[34px] items-center gap-2.5 rounded-full px-2.5 text-[14px] text-ink-2 transition-colors hover:bg-hover hover:text-ink", collapsed && "justify-center px-0")}>
                           <LogOut className="size-[18px] shrink-0 text-ink-3" />
                           {!collapsed && (
                             <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
@@ -276,9 +278,9 @@ export function Shell({ children, status }: { children: ReactNode; status: Shell
               <div className="flex min-w-0 flex-1 flex-col pb-[calc(64px+env(safe-area-inset-bottom))] md:pb-0">
                 {/* Barra superior: breadcrumb no tablet/desktop, marca no celular */}
                 <header className="glass sticky top-0 z-30 flex h-12 shrink-0 items-center gap-2 px-3 md:px-4">
-                  <Link href="/" className="flex items-center gap-2 rounded-[6px] px-1 py-1 md:hidden" aria-label="UseHitzz, início">
+                  <Link href="/" className="flex items-center gap-2 rounded-[8px] px-1 py-1 md:hidden" aria-label="UseHitzz, início">
                     <Logo />
-                    <span className="text-[15px] font-semibold">UseHitzz</span>
+                    <Wordmark className="h-[22px] text-ink" />
                   </Link>
                   <nav aria-label="Você está em" className="hidden min-w-0 items-center gap-0.5 text-[14px] md:flex">
                     <Link href="/" className="rounded-[5px] px-1.5 py-0.5 text-ink-2 transition-colors hover:bg-hover hover:text-ink">
@@ -326,7 +328,7 @@ export function Shell({ children, status }: { children: ReactNode; status: Shell
                     <Link key={n.href} href={n.href} className={cn("relative flex flex-1 flex-col items-center gap-1 pb-2 pt-2 text-[10.5px] font-medium transition-colors active:scale-95", active ? "text-ink" : "text-ink-3")} aria-current={active ? "page" : undefined}>
                       <span className="relative grid h-7 w-11 place-items-center">
                         {active && <motion.span layoutId="tab-active" transition={spring} className="absolute inset-0 rounded-full bg-accent-soft" />}
-                        <Icon className="relative size-[19px]" strokeWidth={active ? 2.2 : 1.8} />
+                        <Icon className={cn("relative size-[19px]", active && "text-brand")} strokeWidth={active ? 2.2 : 1.8} />
                       </span>
                       {n.short}
                     </Link>
@@ -340,7 +342,7 @@ export function Shell({ children, status }: { children: ReactNode; status: Shell
             position="bottom-right"
             offset={16}
             mobileOffset={{ bottom: 84 }}
-            toastOptions={{ className: "!rounded-[10px] !bg-[var(--menu)] !text-ink !border-0 !shadow-[var(--shadow-lg)] !font-sans !text-[13.5px]" }}
+            toastOptions={{ className: "!rounded-[14px] !bg-[var(--menu)] !text-ink !border-0 !shadow-[var(--shadow-lg)] !font-sans !text-[13.5px]" }}
           />
           </OwnerCtx.Provider>
         </LiveCtx.Provider>
@@ -350,7 +352,7 @@ export function Shell({ children, status }: { children: ReactNode; status: Shell
 }
 
 function Logo() {
-  return <span className="grid size-[22px] shrink-0 place-items-center rounded-[5px] bg-accent text-[12px] font-bold text-on-accent">H</span>;
+  return <Onca className="h-[38px] shrink-0 text-ink transition-transform duration-300 ease-out group-hover/logo:-rotate-6" />;
 }
 
 function SideLink({ href, label, Icon, active, collapsed }: { href: string; label: string; Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>; active: boolean; collapsed: boolean }) {
@@ -359,10 +361,10 @@ function SideLink({ href, label, Icon, active, collapsed }: { href: string; labe
       <Link
         href={href}
         aria-current={active ? "page" : undefined}
-        className={cn("group relative flex h-[30px] items-center gap-2.5 rounded-[6px] px-2 text-[14px] transition-colors", active ? "font-medium text-ink" : "text-ink-2 hover:bg-hover hover:text-ink", collapsed && "justify-center px-0")}
+        className={cn("group relative flex h-[34px] items-center gap-2.5 rounded-full px-2.5 text-[14px] transition-colors", active ? "font-medium text-ink" : "text-ink-2 hover:bg-hover hover:text-ink", collapsed && "justify-center px-0")}
       >
-        {active && <motion.span layoutId="nav-active" transition={spring} className="absolute inset-0 -z-10 rounded-[6px] bg-active" />}
-        <Icon className={cn("size-[18px] shrink-0 transition-transform duration-200 group-hover:scale-105", active ? "text-ink" : "text-ink-3")} strokeWidth={active ? 2.1 : 1.8} />
+        {active && <motion.span layoutId="nav-active" transition={spring} className="absolute inset-0 -z-10 rounded-full bg-surface shadow-sm ring-1 ring-hairline" />}
+        <Icon className={cn("size-[18px] shrink-0 transition-transform duration-200 group-hover:scale-105", active ? "text-brand" : "text-ink-3")} strokeWidth={active ? 2.1 : 1.8} />
         {!collapsed && <span className="truncate">{label}</span>}
       </Link>
     </Tip>
@@ -372,7 +374,7 @@ function SideLink({ href, label, Icon, active, collapsed }: { href: string; labe
 function SideButton({ icon, label, onClick, hint, collapsed, badge }: { icon: ReactNode; label: string; onClick?: () => void; hint?: ReactNode; collapsed: boolean; badge?: number }) {
   return (
     <Tip content={collapsed ? label : null} side="right">
-      <button onClick={onClick} className={cn("group relative flex h-[30px] w-full items-center gap-2.5 rounded-[6px] px-2 text-left text-[14px] text-ink-2 transition-colors hover:bg-hover hover:text-ink data-[state=open]:bg-hover", collapsed && "justify-center px-0")} aria-label={label}>
+      <button onClick={onClick} className={cn("group relative flex h-[34px] w-full items-center gap-2.5 rounded-full px-2.5 text-left text-[14px] text-ink-2 transition-colors hover:bg-hover hover:text-ink data-[state=open]:bg-hover", collapsed && "justify-center px-0")} aria-label={label}>
         <span className="relative text-ink-3 transition-transform duration-200 group-hover:scale-105">
           {icon}
           {collapsed && <Badge n={badge} className="-right-1.5 -top-1" />}
@@ -461,7 +463,7 @@ function QueueWidget({ status }: { status: QueueStatus | null }) {
   if (!status) return <div className="skeleton h-14" />;
   const busy = status.running.length + status.queued;
   return (
-    <div className="rounded-[8px] px-2 py-2 text-ink-2 ring-1 ring-hairline">
+    <div className="rounded-[12px] bg-surface/60 px-2.5 py-2.5 text-ink-2 ring-1 ring-hairline">
       <div className="flex items-center gap-2 text-[12.5px] font-medium text-ink">
         {busy && status.running.length ? <Spinner className="text-ink" /> : busy ? <RefreshCw className="size-3.5 text-ink-3" /> : status.failed24h ? <CircleAlert className="size-3.5 text-warn" /> : <CircleCheck className="size-3.5 text-good" />}
         <span className="truncate">{busy ? `${busy} ${busy === 1 ? "tarefa" : "tarefas"} na fila` : status.failed24h ? `${status.failed24h} falha(s) nas últimas 24h` : "Tudo processado"}</span>
@@ -505,7 +507,7 @@ function NotificationsButton({ status, onRead, variant }: { status: QueueStatus 
         )}
       </Popover.Trigger>
       <Popover.Portal>
-        <Popover.Content side={variant === "icon" ? "bottom" : "right"} align={variant === "icon" ? "end" : "start"} sideOffset={8} collisionPadding={12} className="menu-surface z-[70] w-[min(340px,calc(100vw-24px))] rounded-[10px] p-1">
+        <Popover.Content side={variant === "icon" ? "bottom" : "right"} align={variant === "icon" ? "end" : "start"} sideOffset={8} collisionPadding={12} className="menu-surface z-[70] w-[min(340px,calc(100vw-24px))] rounded-[14px] p-1">
           <div className="flex items-center justify-between px-2.5 pb-1 pt-2">
             <span className="text-[13px] font-semibold text-ink">Caixa de entrada</span>
             {unread > 0 && <span className="text-[12px] text-ink-3">{unread} nova{unread > 1 ? "s" : ""}</span>}
@@ -513,7 +515,7 @@ function NotificationsButton({ status, onRead, variant }: { status: QueueStatus 
           <div className="scrollbar-thin max-h-[60vh] overflow-auto">
             {!status?.notifications.length && (
               <div className="px-3 py-10 text-center">
-                <Inbox className="mx-auto mb-2 size-6 text-ink-3" strokeWidth={1.5} />
+                <Onca className="mx-auto mb-3 h-12 text-ink-3" />
                 <p className="text-[13px] text-ink-3">Nada por aqui ainda.</p>
               </div>
             )}
@@ -550,13 +552,13 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
   return (
     <header className="px-page pb-8 pt-8 md:pb-10 md:pt-14">
       {Icon && (
-        <motion.div initial={{ opacity: 0, scale: 0.8, rotate: -8 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 300, damping: 18 }} className="mb-4 grid size-12 place-items-center rounded-[10px] text-ink md:size-14">
-          <Icon className="size-9 md:size-10" strokeWidth={1.4} />
+        <motion.div initial={{ opacity: 0, scale: 0.8, rotate: -8 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 300, damping: 18 }} className="mb-5 grid size-12 place-items-center rounded-full bg-brand-soft text-brand md:size-14">
+          <Icon className="size-6 md:size-7" strokeWidth={1.7} />
         </motion.div>
       )}
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
         <div className="min-w-0 max-w-[760px]">
-          <h1 className="text-[32px] font-bold leading-[1.15] tracking-[-0.025em] text-ink md:text-[40px]">{title}</h1>
+          <h1 className="font-display text-[34px] font-semibold leading-[1.1] tracking-[-0.02em] text-ink md:text-[44px]">{title}</h1>
           {subtitle && <div className="mt-2.5 text-[14.5px] leading-relaxed text-ink-2 md:text-[15px]">{subtitle}</div>}
         </div>
         {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}

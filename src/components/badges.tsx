@@ -3,6 +3,7 @@ import { BAND_LABEL, type Band } from "@/lib/scoring";
 import type { Evidence } from "@/lib/patterns";
 import { cn } from "@/lib/cn";
 import { fmtRatio } from "@/lib/format";
+import { HeartSpot } from "./brand";
 
 export const BAND_VAR: Record<Band, string> = {
   below: "var(--band-below)",
@@ -16,7 +17,12 @@ export function BandBadge({ band, ratio, compact, projected }: { band: Band | nu
   if (!band) return <span className="text-ink-3">—</span>;
   return (
     <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[12.5px] font-medium text-ink">
-      <span aria-hidden className={cn("inline-block size-2 rounded-full", band === "maturing" && "ring-1 ring-ink-3/40")} style={{ background: BAND_VAR[band] }} />
+      {band === "breakout" ? (
+        // pinta de coração da onça: o vídeo que estourou
+        <HeartSpot className="size-2.5" style={{ color: BAND_VAR[band] }} />
+      ) : (
+        <span aria-hidden className={cn("inline-block size-2 rounded-full", band === "maturing" && "ring-1 ring-ink-3/40")} style={{ background: BAND_VAR[band] }} />
+      )}
       {!compact && BAND_LABEL[band]}
       {ratio !== undefined && ratio !== null && band !== "maturing" && <span className="tabular text-ink-2">{fmtRatio(ratio)}</span>}
       {projected && band !== "maturing" && <span className="text-[11px] text-ink-3">proj.</span>}

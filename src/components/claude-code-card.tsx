@@ -33,7 +33,7 @@ function Phrase({ text }: { text: string }) {
 export function ClaudeCodeCard({ videos, scripts, lastDigest }: { videos: number; scripts: number; lastDigest: { createdAt: number; generator: string } | null }) {
   const idle = videos === 0 && scripts === 0;
   return (
-    <div className="rounded-[10px] bg-surface-2 p-5 md:px-6">
+    <div className="rounded-[14px] bg-surface-2 p-5 md:px-6">
       <div className="flex flex-wrap items-start gap-3">
         <span className="grid size-9 shrink-0 place-items-center rounded-[8px] bg-surface text-ink ring-1 ring-hairline">
           <Terminal className="size-4.5" />

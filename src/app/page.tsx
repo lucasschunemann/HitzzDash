@@ -58,7 +58,7 @@ export default async function TodayPage() {
               </ApiButton>
             )}
             {owner && (
-              <Link href="/scripts?new=1" className="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-accent px-3 text-[13.5px] font-medium text-on-accent shadow-sm transition-[background-color,transform] duration-150 hover:bg-accent-hover active:scale-[0.97]">
+              <Link href="/scripts?new=1" className="inline-flex h-9 items-center gap-1.5 rounded-full bg-accent px-4 text-[13.5px] font-medium text-on-accent shadow-sm transition-[background-color,transform] duration-150 hover:bg-accent-hover active:scale-[0.97]">
                 <PenLine className="size-3.5" /> Gerar roteiro
               </Link>
             )}

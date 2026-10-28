@@ -117,7 +117,7 @@ export function SettingsForm({ initial, apify }: { initial: S; apify: boolean })
             <Switch.Root
               checked={s.scheduleEnabled}
               onCheckedChange={(v) => save({ scheduleEnabled: v }, v ? "Coleta automática ligada" : "Coleta automática desligada")}
-              className="relative h-6 w-10 rounded-full bg-surface-3 transition-colors active:scale-95 data-[state=checked]:bg-accent"
+              className="relative h-6 w-10 rounded-full bg-surface-3 transition-colors active:scale-95 data-[state=checked]:bg-brand"
               aria-label="Coleta automática"
             >
               <Switch.Thumb className="block size-5 translate-x-0.5 rounded-full bg-white shadow transition-[transform,background-color] duration-200 ease-[cubic-bezier(.22,1,.36,1)] data-[state=checked]:translate-x-[18px] data-[state=checked]:bg-on-accent" />
@@ -146,7 +146,7 @@ export function SettingsForm({ initial, apify }: { initial: S; apify: boolean })
             {num("keepVideoDays")}
           </Row>
           <Row label="Coletar compartilhamentos" hint="Recurso pago do actor do Apify (includeSharesCount)">
-            <Switch.Root checked={s.includeSharesCount} onCheckedChange={(v) => save({ includeSharesCount: v })} className="relative h-6 w-10 rounded-full bg-surface-3 transition-colors active:scale-95 data-[state=checked]:bg-accent" aria-label="Coletar compartilhamentos">
+            <Switch.Root checked={s.includeSharesCount} onCheckedChange={(v) => save({ includeSharesCount: v })} className="relative h-6 w-10 rounded-full bg-surface-3 transition-colors active:scale-95 data-[state=checked]:bg-brand" aria-label="Coletar compartilhamentos">
               <Switch.Thumb className="block size-5 translate-x-0.5 rounded-full bg-white shadow transition-[transform,background-color] duration-200 ease-[cubic-bezier(.22,1,.36,1)] data-[state=checked]:translate-x-[18px] data-[state=checked]:bg-on-accent" />
             </Switch.Root>
           </Row>

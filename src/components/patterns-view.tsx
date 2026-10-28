@@ -80,8 +80,8 @@ export function TrendList({ trends, labelOf, rows }: { trends: TrendStat[]; labe
   return (
     <div className="divide-y divide-hairline">
       {shown.map((t) => (
-        <div key={t.key} className="-mx-2 rounded-[6px] px-2 py-3 transition-colors hover:bg-hover">
-          <div className="flex items-center gap-2">
+        <div key={t.key} className="-mx-2 rounded-[10px] px-2 py-3 transition-colors hover:bg-hover">
+          <div className="flex flex-wrap items-center gap-2">
             {TREND_ICON[t.status]}
             <span className="min-w-0 truncate text-[13px] font-medium text-ink">{labelOf[t.key] ?? t.key}</span>
             <Pill tone={t.status === "acelerando" || t.status === "ganhando tração" ? "accent" : t.status === "esfriando" ? "blue" : "neutral"}>{t.status}</Pill>

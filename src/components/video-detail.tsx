@@ -102,12 +102,12 @@ export function VideoDetail({ data, compact, origin }: { data: VideoDetailData; 
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             {row.url && (
-              <a href={row.url} target="_blank" rel="noreferrer" className="inline-flex h-7 items-center gap-1.5 rounded-[6px] bg-surface px-2.5 text-[13px] font-medium ring-1 ring-hairline-strong transition-[background-color,transform] hover:bg-hover active:scale-[0.97]">
+              <a href={row.url} target="_blank" rel="noreferrer" className="inline-flex h-7 items-center gap-1.5 rounded-full bg-surface px-2.5 text-[13px] font-medium ring-1 ring-hairline-strong transition-[background-color,transform] hover:bg-hover active:scale-[0.97]">
                 <ExternalLink className="size-3.5" /> Instagram
               </a>
             )}
             {owner && (
-              <Link href={`/scripts?new=1&hook=${row.hookType ?? ""}&theme=${row.theme ?? ""}`} className="inline-flex h-7 items-center gap-1.5 rounded-[6px] bg-accent px-2.5 text-[13px] font-medium text-on-accent transition-[background-color,transform] hover:bg-accent-hover active:scale-[0.97]">
+              <Link href={`/scripts?new=1&hook=${row.hookType ?? ""}&theme=${row.theme ?? ""}`} className="inline-flex h-7 items-center gap-1.5 rounded-full bg-accent px-2.5 text-[13px] font-medium text-on-accent transition-[background-color,transform] hover:bg-accent-hover active:scale-[0.97]">
                 <Sparkles className="size-3.5" /> Roteiro com este padrão
               </Link>
             )}
@@ -612,7 +612,7 @@ function PipelineStatus({ data }: { data: VideoDetailData }) {
             Reanalisar
           </Button>
           {data.videoUrl && (
-            <a href={data.videoUrl} download className="inline-flex h-7 items-center gap-1.5 rounded-[6px] px-2.5 text-[12.5px] font-medium text-ink-2 hover:bg-hover">
+            <a href={data.videoUrl} download className="inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-[12.5px] font-medium text-ink-2 hover:bg-hover">
               <Download className="size-3.5" /> Vídeo (temporário)
             </a>
           )}
@@ -648,7 +648,7 @@ export function VideoDetailSkeleton() {
   return (
     <div className="space-y-6 p-5">
       <div className="flex gap-5">
-        <Skeleton className="h-[210px] w-[118px] rounded-[10px]" />
+        <Skeleton className="h-[210px] w-[118px] rounded-[14px]" />
         <div className="flex-1 space-y-3">
           <Skeleton className="h-3 w-40" />
           <Skeleton className="h-5 w-full" />

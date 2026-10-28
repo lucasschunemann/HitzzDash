@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Jost } from "next/font/google";
 import { connection } from "next/server";
 import "./globals.css";
 import { Shell } from "@/components/shell";
@@ -12,6 +12,8 @@ import { isRemoteDb } from "@/db";
 import { hasFfmpeg } from "@/server/media";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+// Títulos: geométrica como o wordmark "use hitzz"
+const jost = Jost({ subsets: ["latin"], variable: "--font-jost", display: "swap", weight: ["500", "600", "700"] });
 
 export const metadata: Metadata = {
   title: { default: "UseHitzz · Inteligência de conteúdo", template: "%s · UseHitzz" },
@@ -20,8 +22,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#191919" },
+    { media: "(prefers-color-scheme: light)", color: "#f7f3ee" },
+    { media: "(prefers-color-scheme: dark)", color: "#14100e" },
   ],
 };
 
@@ -40,7 +42,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   }
   const ffmpeg = vercel ? true : await hasFfmpeg();
   return (
-    <html lang="pt-BR" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang="pt-BR" className={`${inter.variable} ${jost.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>

@@ -111,7 +111,7 @@ export function ThemePicker() {
         const on = pref === o.value;
         return (
           <button key={o.value} role="radio" aria-checked={on} onClick={() => setPref(o.value)} className="group text-left">
-            <div className={cn("relative aspect-[4/3] overflow-hidden rounded-[10px] ring-1 transition-all duration-200 group-hover:-translate-y-0.5 group-active:scale-[0.98]", on ? "ring-2 ring-ink" : "ring-hairline-strong group-hover:ring-ink-3")}>
+            <div className={cn("relative aspect-[4/3] overflow-hidden rounded-[14px] ring-1 transition-all duration-200 group-hover:-translate-y-0.5 group-active:scale-[0.98]", on ? "ring-2 ring-ink" : "ring-hairline-strong group-hover:ring-ink-3")}>
               {o.value === "system" ? (
                 <div className="flex size-full">
                   <Mini dark={false} />

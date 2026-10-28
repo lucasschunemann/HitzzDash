@@ -248,7 +248,7 @@ function ViewTabs<T extends string>({ value, onChange, options }: { value: T; on
             role="tab"
             aria-selected={on}
             onClick={() => onChange(o.value)}
-            className={cn("relative inline-flex h-8 items-center gap-1.5 rounded-[6px] px-2 text-[14px] transition-colors hover:bg-hover", on ? "font-medium text-ink max-sm:bg-active" : "text-ink-3 hover:text-ink-2")}
+            className={cn("relative inline-flex h-8 items-center gap-1.5 rounded-full px-2 text-[14px] transition-colors hover:bg-hover", on ? "font-medium text-ink max-sm:bg-active" : "text-ink-3 hover:text-ink-2")}
           >
             {o.icon}
             <span className="hidden sm:inline">{o.label}</span>
@@ -422,7 +422,7 @@ function Board({ rows, groupBy, ids }: { rows: ClientVideoRow[]; groupBy: Exclud
   return (
     <div className="scrollbar-thin bleed-page px-page flex gap-3 overflow-x-auto pb-4">
       {cols.map(([k, items]) => (
-        <div key={k} className="w-[260px] shrink-0 rounded-[10px] bg-surface-2/70 p-2">
+        <div key={k} className="w-[260px] shrink-0 rounded-[14px] bg-surface-2/70 p-2">
           <div className="mb-2 flex items-center gap-2 px-1.5 pt-1 text-[13px] font-medium text-ink">
             {groupBy === "band" && <span className="size-2 rounded-full" style={{ background: BAND_VAR[k as Band] ?? "var(--band-normal)" }} />}
             <span className="truncate">{label(k)}</span>
@@ -442,12 +442,12 @@ function Board({ rows, groupBy, ids }: { rows: ClientVideoRow[]; groupBy: Exclud
 function MenuPopover({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
   return (
     <Popover.Root>
-      <Popover.Trigger className="inline-flex h-8 items-center gap-1.5 rounded-[6px] px-2 text-[13.5px] text-ink-2 transition-colors hover:bg-hover hover:text-ink data-[state=open]:bg-hover data-[state=open]:text-ink">
+      <Popover.Trigger className="inline-flex h-8 items-center gap-1.5 rounded-full px-2 text-[13.5px] text-ink-2 transition-colors hover:bg-hover hover:text-ink data-[state=open]:bg-hover data-[state=open]:text-ink">
         {icon}
         <span className="hidden lg:inline">{label}</span>
       </Popover.Trigger>
       <Popover.Portal>
-        <Popover.Content align="start" sideOffset={6} collisionPadding={12} className="menu-surface z-50 w-60 rounded-[10px] p-1">
+        <Popover.Content align="start" sideOffset={6} collisionPadding={12} className="menu-surface z-50 w-60 rounded-[14px] p-1">
           {children}
         </Popover.Content>
       </Popover.Portal>
@@ -474,7 +474,7 @@ function ChipToggle<T extends string | number>({ values, options, onChange }: { 
             key={String(o.value)}
             onClick={() => onChange(on ? values.filter((v) => v !== o.value) : [...values, o.value])}
             aria-pressed={on}
-            className={cn("inline-flex h-7 items-center gap-1.5 rounded-[6px] px-2.5 text-[13px] transition-[background-color,color,transform] duration-150 active:scale-95", on ? "bg-accent font-medium text-on-accent" : "bg-accent-soft text-ink-2 hover:bg-active hover:text-ink")}
+            className={cn("inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-[13px] transition-[background-color,color,transform] duration-150 active:scale-95", on ? "bg-accent font-medium text-on-accent" : "bg-accent-soft text-ink-2 hover:bg-active hover:text-ink")}
           >
             {o.dot && <span className="size-1.5 rounded-full" style={{ background: o.dot }} />}
             {o.label}
@@ -489,12 +489,12 @@ function FilterPopover({ f, setF, accounts, count }: { f: Filters; setF: (f: Fil
   const sec = "text-[12px] font-medium text-ink-3";
   return (
     <Popover.Root>
-      <Popover.Trigger className={cn("inline-flex h-8 items-center gap-1.5 rounded-[6px] px-2 text-[13.5px] transition-colors data-[state=open]:bg-hover", count ? "bg-accent-soft font-medium text-ink" : "text-ink-2 hover:bg-hover hover:text-ink")}>
+      <Popover.Trigger className={cn("inline-flex h-8 items-center gap-1.5 rounded-full px-2 text-[13.5px] transition-colors data-[state=open]:bg-hover", count ? "bg-accent-soft font-medium text-ink" : "text-ink-2 hover:bg-hover hover:text-ink")}>
         <SlidersHorizontal className="size-3.5" />
         <span className={cn(!count && "hidden lg:inline")}>Filtros{count ? ` · ${count}` : ""}</span>
       </Popover.Trigger>
       <Popover.Portal>
-        <Popover.Content align="start" sideOffset={6} collisionPadding={12} className="menu-surface scrollbar-thin z-50 max-h-[70vh] w-[min(440px,calc(100vw-24px))] space-y-4 overflow-y-auto rounded-[10px] p-4">
+        <Popover.Content align="start" sideOffset={6} collisionPadding={12} className="menu-surface scrollbar-thin z-50 max-h-[70vh] w-[min(440px,calc(100vw-24px))] space-y-4 overflow-y-auto rounded-[14px] p-4">
           <div className="space-y-1.5">
             <div className={sec}>Período</div>
             <Segmented

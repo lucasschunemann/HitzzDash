@@ -1,68 +1,70 @@
 @import "tailwindcss";
 
 /*
- * Design tokens — linguagem Notion: papel branco (ou grafite no escuro), tinta quase preta,
- * cinzas quentes, bordas finíssimas, sem sombras em blocos. Preto e branco são a identidade;
- * cor só aparece em dados (faixas de desempenho, gráficos) e em estados (bom/atenção/erro).
+ * Design tokens: identidade da UseHitzz. Papel creme, tinta marrom-quase-preta (#14100e, a do site),
+ * caramelo de couro como cor de marca. Preto e creme seguem como base; caramelo marca ação, foco
+ * e destaque; dados usam a escala ardósia (abaixo) ↔ caramelo/conhaque (acima).
  *
  * Tema: data-theme="light" | "dark" no <html>; sem atributo segue o sistema.
  */
 :root {
   color-scheme: light;
-  --bg: #ffffff;
-  --sidebar: #f8f8f7;
-  --surface: #ffffff;
-  --surface-2: #f4f4f2;
-  --surface-3: #e9e9e7;
-  --hover: rgba(55, 53, 47, 0.06);
-  --active: rgba(55, 53, 47, 0.1);
-  --glass: rgba(255, 255, 255, 0.86);
-  --glass-strong: #ffffff;
-  --menu: #ffffff;
-  --overlay: rgba(15, 15, 15, 0.18);
-  --hairline: rgba(55, 53, 47, 0.09);
-  --hairline-strong: rgba(55, 53, 47, 0.16);
-  --text: #2f2e2b;
-  --text-2: #73726e;
-  --text-3: #a3a29e;
-  --accent: #1f1f1e;
+  --bg: #f7f3ee;
+  --sidebar: #efe9e2;
+  --surface: #fffdfa;
+  --surface-2: #f2ece5;
+  --surface-3: #e7dfd5;
+  --hover: rgba(20, 16, 14, 0.055);
+  --active: rgba(20, 16, 14, 0.09);
+  --glass: rgba(247, 243, 238, 0.86);
+  --glass-strong: #fffdfa;
+  --menu: #fffdfa;
+  --overlay: rgba(20, 16, 14, 0.22);
+  --hairline: rgba(20, 16, 14, 0.09);
+  --hairline-strong: rgba(20, 16, 14, 0.17);
+  --text: #14100e;
+  --text-2: #6a615a;
+  --text-3: #9f958c;
+  --accent: #14100e;
   --accent-hover: #000000;
-  --accent-fg: #ffffff;
-  --accent-soft: rgba(55, 53, 47, 0.08);
-  --accent-ink: #2f2e2b;
-  --focus: rgba(35, 131, 226, 0.45);
-  --tooltip: #1f1f1e;
-  --tooltip-fg: #ffffff;
+  --accent-fg: #fffdfa;
+  --accent-soft: rgba(20, 16, 14, 0.065);
+  --accent-ink: #14100e;
+  --brand: #a8612c;
+  --brand-soft: rgba(168, 97, 44, 0.12);
+  --focus: rgba(168, 97, 44, 0.5);
+  --tooltip: #14100e;
+  --tooltip-fg: #fffdfa;
   --on-tint: #ffffff;
 
-  /* score: azul (abaixo) ↔ laranja (acima), neutro cinza — paleta de tags do Notion */
-  --band-below: #3f89c6;
-  --band-normal: #b9b8b4;
-  --band-above: #f1ad6b;
-  --band-breakout: #d9730d;
-  --band-maturing: #dcdbd8;
+  /* score: ardósia (abaixo) ↔ caramelo e conhaque (acima), neutro areia */
+  --band-below: #5f7d8f;
+  --band-normal: #cbc1b6;
+  --band-above: #d4995f;
+  --band-breakout: #a8461c;
+  --band-maturing: #e3dbd1;
 
-  /* sequencial azul (mapa de calor) */
-  --seq-0: #f4f4f2;
-  --seq-1: #dbe9f6;
-  --seq-2: #b6d3ee;
-  --seq-3: #86b6e2;
-  --seq-4: #4f94d2;
-  --seq-5: #2f75b5;
-  --seq-6: #1f5688;
+  /* sequencial caramelo (mapa de calor) */
+  --seq-0: #f2ece5;
+  --seq-1: #f3e0cb;
+  --seq-2: #eac6a0;
+  --seq-3: #dca673;
+  --seq-4: #c8844b;
+  --seq-5: #a8612c;
+  --seq-6: #763f18;
 
-  --cat-1: #3f89c6;
-  --cat-2: #d9730d;
-  --cat-3: #448361;
-  --cat-other: #b9b8b4;
+  --cat-1: #5f7d8f;
+  --cat-2: #c47a3f;
+  --cat-3: #6b7a45;
+  --cat-other: #cbc1b6;
 
-  --good: #3a7d5b;
-  --warn: #b7802a;
-  --bad: #d44c47;
+  --good: #4d7a45;
+  --warn: #b37a22;
+  --bad: #c0443a;
 
-  --shadow-sm: 0 1px 2px rgba(15, 15, 15, 0.04);
-  --shadow-md: 0 0 0 1px rgba(15, 15, 15, 0.03), 0 3px 6px rgba(15, 15, 15, 0.06), 0 9px 24px rgba(15, 15, 15, 0.08);
-  --shadow-lg: 0 0 0 1px rgba(15, 15, 15, 0.04), 0 3px 6px rgba(15, 15, 15, 0.08), 0 9px 24px rgba(15, 15, 15, 0.16);
+  --shadow-sm: 0 1px 2px rgba(20, 16, 14, 0.05);
+  --shadow-md: 0 0 0 1px rgba(20, 16, 14, 0.03), 0 3px 6px rgba(20, 16, 14, 0.05), 0 10px 26px rgba(60, 36, 18, 0.09);
+  --shadow-lg: 0 0 0 1px rgba(20, 16, 14, 0.05), 0 3px 6px rgba(20, 16, 14, 0.07), 0 12px 30px rgba(60, 36, 18, 0.16);
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -70,115 +72,119 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg: #191919;
-    --sidebar: #202020;
-    --surface: #1f1f1f;
-    --surface-2: #262626;
-    --surface-3: #323232;
-    --hover: rgba(255, 255, 255, 0.055);
-    --active: rgba(255, 255, 255, 0.09);
-    --glass: rgba(25, 25, 25, 0.86);
-    --glass-strong: #252525;
-    --menu: #252525;
-    --overlay: rgba(0, 0, 0, 0.5);
-    --hairline: rgba(255, 255, 255, 0.075);
-    --hairline-strong: rgba(255, 255, 255, 0.14);
-    --text: #e9e9e7;
-    --text-2: #a5a5a2;
-    --text-3: #6f6f6c;
-    --accent: #ededeb;
+    --bg: #14100e;
+    --sidebar: #1a1512;
+    --surface: #1c1714;
+    --surface-2: #251f1b;
+    --surface-3: #322a25;
+    --hover: rgba(255, 240, 225, 0.055);
+    --active: rgba(255, 240, 225, 0.09);
+    --glass: rgba(20, 16, 14, 0.86);
+    --glass-strong: #241e1a;
+    --menu: #241e1a;
+    --overlay: rgba(0, 0, 0, 0.55);
+    --hairline: rgba(255, 240, 225, 0.075);
+    --hairline-strong: rgba(255, 240, 225, 0.14);
+    --text: #f3ede6;
+    --text-2: #b2a79d;
+    --text-3: #7b7067;
+    --accent: #f3ede6;
     --accent-hover: #ffffff;
-    --accent-fg: #191919;
-    --accent-soft: rgba(255, 255, 255, 0.08);
-    --accent-ink: #e9e9e7;
-    --focus: rgba(82, 156, 202, 0.55);
-    --tooltip: #3a3a3a;
-    --tooltip-fg: #f2f2f0;
-    --on-tint: #191919;
+    --accent-fg: #14100e;
+    --accent-soft: rgba(255, 240, 225, 0.08);
+    --accent-ink: #f3ede6;
+    --brand: #dc9a62;
+    --brand-soft: rgba(220, 154, 98, 0.14);
+    --focus: rgba(220, 154, 98, 0.55);
+    --tooltip: #3a312b;
+    --tooltip-fg: #f6f0ea;
+    --on-tint: #14100e;
 
-    --band-below: #529cca;
-    --band-normal: #5d5d5a;
-    --band-above: #b8773e;
-    --band-breakout: #ffa344;
-    --band-maturing: #3c3c3a;
+    --band-below: #86a3b4;
+    --band-normal: #574c45;
+    --band-above: #b98352;
+    --band-breakout: #ee8f55;
+    --band-maturing: #372e28;
 
-    --seq-0: #262626;
-    --seq-1: #173652;
-    --seq-2: #1e4a70;
-    --seq-3: #255f8f;
-    --seq-4: #3478b0;
-    --seq-5: #529cca;
-    --seq-6: #93c2e2;
+    --seq-0: #251f1b;
+    --seq-1: #3b2a1e;
+    --seq-2: #573a23;
+    --seq-3: #77502c;
+    --seq-4: #a06a38;
+    --seq-5: #cc8a4d;
+    --seq-6: #f2b47c;
 
-    --cat-1: #529cca;
-    --cat-2: #ffa344;
-    --cat-3: #4dab9a;
-    --cat-other: #5d5d5a;
+    --cat-1: #86a3b4;
+    --cat-2: #e0995c;
+    --cat-3: #a5b273;
+    --cat-other: #574c45;
 
-    --good: #4dab9a;
-    --warn: #d9a53f;
-    --bad: #ff7369;
+    --good: #8fb47f;
+    --warn: #d9a548;
+    --bad: #ef7a6c;
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 3px 6px rgba(0, 0, 0, 0.3), 0 9px 24px rgba(0, 0, 0, 0.35);
-    --shadow-lg: 0 0 0 1px rgba(255, 255, 255, 0.07), 0 3px 6px rgba(0, 0, 0, 0.35), 0 9px 24px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 0 0 1px rgba(255, 240, 225, 0.05), 0 3px 6px rgba(0, 0, 0, 0.3), 0 9px 24px rgba(0, 0, 0, 0.38);
+    --shadow-lg: 0 0 0 1px rgba(255, 240, 225, 0.07), 0 3px 6px rgba(0, 0, 0, 0.35), 0 9px 24px rgba(0, 0, 0, 0.5);
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #191919;
-  --sidebar: #202020;
-  --surface: #1f1f1f;
-  --surface-2: #262626;
-  --surface-3: #323232;
-  --hover: rgba(255, 255, 255, 0.055);
-  --active: rgba(255, 255, 255, 0.09);
-  --glass: rgba(25, 25, 25, 0.86);
-  --glass-strong: #252525;
-  --menu: #252525;
-  --overlay: rgba(0, 0, 0, 0.5);
-  --hairline: rgba(255, 255, 255, 0.075);
-  --hairline-strong: rgba(255, 255, 255, 0.14);
-  --text: #e9e9e7;
-  --text-2: #a5a5a2;
-  --text-3: #6f6f6c;
-  --accent: #ededeb;
+  --bg: #14100e;
+  --sidebar: #1a1512;
+  --surface: #1c1714;
+  --surface-2: #251f1b;
+  --surface-3: #322a25;
+  --hover: rgba(255, 240, 225, 0.055);
+  --active: rgba(255, 240, 225, 0.09);
+  --glass: rgba(20, 16, 14, 0.86);
+  --glass-strong: #241e1a;
+  --menu: #241e1a;
+  --overlay: rgba(0, 0, 0, 0.55);
+  --hairline: rgba(255, 240, 225, 0.075);
+  --hairline-strong: rgba(255, 240, 225, 0.14);
+  --text: #f3ede6;
+  --text-2: #b2a79d;
+  --text-3: #7b7067;
+  --accent: #f3ede6;
   --accent-hover: #ffffff;
-  --accent-fg: #191919;
-  --accent-soft: rgba(255, 255, 255, 0.08);
-  --accent-ink: #e9e9e7;
-  --focus: rgba(82, 156, 202, 0.55);
-  --tooltip: #3a3a3a;
-  --tooltip-fg: #f2f2f0;
-  --on-tint: #191919;
+  --accent-fg: #14100e;
+  --accent-soft: rgba(255, 240, 225, 0.08);
+  --accent-ink: #f3ede6;
+  --brand: #dc9a62;
+  --brand-soft: rgba(220, 154, 98, 0.14);
+  --focus: rgba(220, 154, 98, 0.55);
+  --tooltip: #3a312b;
+  --tooltip-fg: #f6f0ea;
+  --on-tint: #14100e;
 
-  --band-below: #529cca;
-  --band-normal: #5d5d5a;
-  --band-above: #b8773e;
-  --band-breakout: #ffa344;
-  --band-maturing: #3c3c3a;
+  --band-below: #86a3b4;
+  --band-normal: #574c45;
+  --band-above: #b98352;
+  --band-breakout: #ee8f55;
+  --band-maturing: #372e28;
 
-  --seq-0: #262626;
-  --seq-1: #173652;
-  --seq-2: #1e4a70;
-  --seq-3: #255f8f;
-  --seq-4: #3478b0;
-  --seq-5: #529cca;
-  --seq-6: #93c2e2;
+  --seq-0: #251f1b;
+  --seq-1: #3b2a1e;
+  --seq-2: #573a23;
+  --seq-3: #77502c;
+  --seq-4: #a06a38;
+  --seq-5: #cc8a4d;
+  --seq-6: #f2b47c;
 
-  --cat-1: #529cca;
-  --cat-2: #ffa344;
-  --cat-3: #4dab9a;
-  --cat-other: #5d5d5a;
+  --cat-1: #86a3b4;
+  --cat-2: #e0995c;
+  --cat-3: #a5b273;
+  --cat-other: #574c45;
 
-  --good: #4dab9a;
-  --warn: #d9a53f;
-  --bad: #ff7369;
+  --good: #8fb47f;
+  --warn: #d9a548;
+  --bad: #ef7a6c;
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 3px 6px rgba(0, 0, 0, 0.3), 0 9px 24px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 0 0 1px rgba(255, 255, 255, 0.07), 0 3px 6px rgba(0, 0, 0, 0.35), 0 9px 24px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 0 0 1px rgba(255, 240, 225, 0.05), 0 3px 6px rgba(0, 0, 0, 0.3), 0 9px 24px rgba(0, 0, 0, 0.38);
+  --shadow-lg: 0 0 0 1px rgba(255, 240, 225, 0.07), 0 3px 6px rgba(0, 0, 0, 0.35), 0 9px 24px rgba(0, 0, 0, 0.5);
 }
 
 @theme inline {
@@ -200,15 +206,18 @@
   --color-on-accent: var(--accent-fg);
   --color-accent-soft: var(--accent-soft);
   --color-accent-ink: var(--accent-ink);
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
   --color-good: var(--good);
   --color-warn: var(--warn);
   --color-bad: var(--bad);
   --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", var(--font-inter), Helvetica, "Apple Color Emoji", Arial, sans-serif;
+  --font-display: var(--font-jost), ui-sans-serif, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
   --font-mono: "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
-  --radius-card: 10px;
+  --radius-card: 14px;
 }
 
 /* Margens laterais de página: generosas como no Notion, menores no celular */
@@ -410,7 +419,7 @@ body {
 }
 
 ::selection {
-  background: rgba(35, 131, 226, 0.22);
+  background: color-mix(in srgb, var(--brand) 26%, transparent);
 }
 
 input[type="checkbox"],
